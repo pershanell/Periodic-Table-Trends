@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Periodic Trends Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: lab-notebook page — header strip, three tabs (Explore table · Water test · Challenge); table on top, detail + pattern notes beneath */
+:root{
+  --paper:#f2f5f8; --card:#ffffff; --ink:#16233a; --muted:#56667c; --line:#d2dbe5;
+  --accent:#d9661a; --accent-soft:#fbe7d6; --good:#23824f; --bad:#c23a3a;
+  --t-metal:#cfe0f5; --t-trans:#dfe3f2; --t-metalloid:#e6ebc8; --t-nonmetal:#cdeee4; --t-noble:#e7dcf5; --t-none:#eceff3;
+  --heat-lo:#eef2f6; --heat-hi:#1f3f73; --heat-text-hi:#ffffff; --react-hi:#b4470c; --push:#3a6db3;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0f151d; --card:#17202b; --ink:#e5ebf2; --muted:#9aa9bb; --line:#2a3646;
+  --accent:#f0914a; --accent-soft:#3a2617; --good:#4cc283; --bad:#ef6b6b;
+  --t-metal:#22385a; --t-trans:#2a3049; --t-metalloid:#3a3f22; --t-nonmetal:#1d3f37; --t-noble:#36294d; --t-none:#1b232e;
+  --heat-lo:#1b2430; --heat-hi:#f2a865; --heat-text-hi:#10161f; --react-hi:#f07a2c; --push:#7fb0ff; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0f151d; --card:#17202b; --ink:#e5ebf2; --muted:#9aa9bb; --line:#2a3646;
+  --accent:#f0914a; --accent-soft:#3a2617; --good:#4cc283; --bad:#ef6b6b;
+  --t-metal:#22385a; --t-trans:#2a3049; --t-metalloid:#3a3f22; --t-nonmetal:#1d3f37; --t-noble:#36294d; --t-none:#1b232e;
+  --heat-lo:#1b2430; --heat-hi:#f2a865; --heat-text-hi:#10161f; --react-hi:#f07a2c; --push:#7fb0ff; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:28px 28px;background-attachment:fixed}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px;margin-bottom:18px}
+header.top h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+header.top h1 span{color:var(--accent)}
+header.top p{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.badge{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  border:1px solid var(--line);background:var(--card);padding:4px 10px;border-radius:4px}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;border-bottom:2px solid var(--ink)}
+nav.tabs button{font:700 1rem var(--f-display);background:var(--card);color:var(--ink);border:2px solid var(--ink);border-bottom:none;
+  padding:10px 16px;border-radius:8px 8px 0 0;cursor:pointer;margin-bottom:-2px}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+nav.tabs button small{font:400 .75rem var(--f-mono);opacity:.7;margin-right:6px}
+button{font-family:var(--f-body)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer;font-size:.92rem}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:700}
+
+/* periodic table */
+.table-scroll{overflow-x:auto;padding-bottom:6px}
+.ptable{display:grid;grid-template-columns:26px repeat(18,minmax(40px,1fr));gap:3px;min-width:780px}
+.ghead,.plabel{font:600 .72rem var(--f-mono);color:var(--muted);display:flex;align-items:center;justify-content:center}
+.tile{position:relative;aspect-ratio:1/1.08;border-radius:5px;border:1px solid transparent;background:var(--t-none);color:var(--ink);
+  cursor:pointer;padding:3px 4px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;transition:transform .12s, box-shadow .12s}
+.tile:hover{transform:translateY(-2px);box-shadow:0 3px 8px rgba(0,0,0,.18)}
+.tile .z{font:500 .62rem var(--f-mono);opacity:.8}
+.tile .s{font:700 1.05rem var(--f-display)}
+.tile .v{font:600 .6rem var(--f-mono);opacity:.85;min-height:.8em}
+.tile.sel{outline:3px solid var(--accent);outline-offset:1px;z-index:2}
+.tile.ph{cursor:default;opacity:.55;font-size:.6rem;justify-content:center;align-items:center;text-align:center}
+.tile.ph:hover{transform:none;box-shadow:none}
+.tile.dim{opacity:.38}
+.stair{border-right:3px solid var(--ink) !important}
+.stair-top{border-top:3px solid var(--ink) !important}
+
+.tdetail{background:var(--card);border:1.5px solid var(--ink);border-radius:8px;padding:8px 10px;margin:0 6px 6px;
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center;overflow:auto;font-size:.8rem;line-height:1.35;min-height:0}
+.tdetail .bohr{width:auto;height:100%;max-height:170px;max-width:150px;aspect-ratio:1;grid-row:1 / span 2}
+.tdetail h2{font-size:1.15rem}
+.tdetail h2 .sym{color:var(--accent);margin-right:6px}
+.tdetail dl.facts{grid-template-columns:max-content minmax(0,1fr) max-content minmax(0,1fr);gap:1px 10px;margin:4px 0 0;font-size:.8rem}
+.tdetail .note{margin:4px 0 0;padding:5px 8px;font-size:.76rem}
+.tdetail .tk{grid-column:1 / -1;font-size:.72rem}
+.explore-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px;margin-top:16px}
+@media (max-width:820px){.tdetail{background:var(--card);border:1.5px solid var(--ink);border-radius:8px;padding:8px 10px;margin:0 6px 6px;
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center;overflow:auto;font-size:.8rem;line-height:1.35;min-height:0}
+.tdetail .bohr{width:auto;height:100%;max-height:170px;max-width:150px;aspect-ratio:1;grid-row:1 / span 2}
+.tdetail h2{font-size:1.15rem}
+.tdetail h2 .sym{color:var(--accent);margin-right:6px}
+.tdetail dl.facts{grid-template-columns:max-content minmax(0,1fr) max-content minmax(0,1fr);gap:1px 10px;margin:4px 0 0;font-size:.8rem}
+.tdetail .note{margin:4px 0 0;padding:5px 8px;font-size:.76rem}
+.tdetail .tk{grid-column:1 / -1;font-size:.72rem}
+.explore-grid{grid-template-columns:1fr}}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:12px 0 0;font-size:.85rem}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px;border:1px solid var(--line)}
+.heatbar{height:12px;border-radius:6px;width:180px;background:linear-gradient(90deg,var(--heat-lo),var(--heat-hi));border:1px solid var(--line)}
+.heatbar.react{background:linear-gradient(90deg,var(--heat-lo),var(--react-hi))}
+.pattern h3{font-size:1.3rem;margin-bottom:8px}
+.pattern ul{margin:8px 0 0;padding-left:1.1em}
+.pattern li{margin:4px 0}
+.arrow{font-family:var(--f-mono);color:var(--accent);font-weight:600}
+
+.detail{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:480px){.detail{grid-template-columns:1fr}}
+.bigtile{width:96px;height:104px;border-radius:8px;padding:8px;display:flex;flex-direction:column;justify-content:space-between;border:2px solid var(--ink)}
+.bigtile .s{font:800 2.2rem var(--f-display);line-height:1}
+.bigtile .z{font:600 .8rem var(--f-mono)}
+dl.facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;margin:10px 0 0;font-size:.95rem}
+dl.facts dt{color:var(--muted)}
+dl.facts dd{margin:0;font-variant-numeric:tabular-nums}
+.bohr{display:block;width:100%;max-width:240px;height:auto}
+.note{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:.93rem;margin-top:10px}
+
+/* lab */
+.lab-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px}
+.lab-left{width:min-content}
+.lab-left .metal-btns{flex-wrap:nowrap}
+@media (max-width:860px){.lab-grid{grid-template-columns:1fr}.lab-left{width:auto}.lab-left .metal-btns{flex-wrap:wrap}}
+.forces{display:block;width:100%;max-width:380px;height:auto;margin:6px auto 0}
+.fbars{margin-top:12px;font-size:.88rem}
+.flabels{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.fsplit{display:flex;align-items:center;height:26px;gap:3px}
+.fsplit div{height:14px;transition:flex-basis .5s}
+#barA{background:var(--accent);border-radius:7px 0 0 7px}
+#barR{background:var(--push);border-radius:0 7px 7px 0}
+canvas#trough{width:100%;height:280px;display:block;border-radius:8px;background:var(--paper)}
+.metal-btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.mbtn{border:2px solid var(--line);background:var(--t-metal);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;min-width:64px;text-align:left}
+.mbtn b{font:800 1.2rem var(--f-display);display:block;line-height:1}
+.mbtn span{font-size:.72rem;color:var(--muted)}
+.mbtn[aria-pressed="true"]{border-color:var(--accent)}
+.mbtn .done{color:var(--good);font-weight:700}
+.go{font:700 1rem var(--f-display);background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 18px;cursor:pointer}
+.go:disabled{opacity:.5;cursor:default}
+.obs{min-height:3.2em;margin-top:10px;font-size:.98rem}
+.eq{font-family:var(--f-mono);font-size:.88rem;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-top:8px;overflow-x:auto;white-space:nowrap}
+.tbl-wrap{overflow-x:auto;margin-top:16px}
+table.data{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+table.data th,table.data td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+table.data th{font:600 .75rem var(--f-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+table.data td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.data tr.cur td{background:var(--accent-soft)}
+.pull{height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
+.pull div{height:100%;background:var(--accent);transition:width .5s}
+.concl{display:grid;gap:10px;margin-top:10px}
+.concl label{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+select{font:inherit;padding:5px 8px;border-radius:6px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.ok{color:var(--good);font-weight:700}.no{color:var(--bad);font-weight:700}
+.warn{font-size:.85rem;color:var(--muted);margin-top:8px}
+
+/* quiz */
+.quiz{max-width:760px;margin:0 auto}
+.qhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-bottom:14px}
+.progress{display:flex;gap:4px}
+.progress i{width:22px;height:8px;border-radius:4px;background:var(--line)}
+.progress i.r{background:var(--good)}.progress i.w{background:var(--bad)}.progress i.c{background:var(--accent)}
+.stat{font-family:var(--f-mono);font-size:.85rem}
+.qtype{font:600 .75rem var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--accent)}
+.qtext{font:700 1.45rem var(--f-display);margin:6px 0 16px;line-height:1.25}
+.qvis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.qvis .mini{width:62px;height:66px;border-radius:6px;padding:5px;display:flex;flex-direction:column;justify-content:space-between;border:1.5px solid var(--ink)}
+.qvis .mini b{font:800 1.4rem var(--f-display)}
+.qvis .mini span{font:500 .62rem var(--f-mono)}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:12px 14px;cursor:pointer;font-size:1.02rem}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.right{border-color:var(--good);background:color-mix(in oklab,var(--good) 14%,var(--card))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in oklab,var(--bad) 14%,var(--card))}
+.opt:disabled{cursor:default}
+.opt .ord{font:700 .8rem var(--f-mono);color:var(--accent);margin-right:6px}
+.feedback{margin-top:14px;border-radius:10px;padding:12px 14px;border:1.5px solid var(--line)}
+.feedback h4{margin:0 0 4px;font-family:var(--f-display);font-size:1.1rem}
+.endcard{text-align:center;padding:24px}
+.endcard .big{font:800 4rem var(--f-display);color:var(--accent);line-height:1}
+.review{text-align:left;margin-top:16px}
+.review li{margin:8px 0}
+.dlabel{font:600 .72rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:12px}
+#disp .metal-btns{margin:6px 0 0}
+#dSalts .mbtn{background:var(--paper)}
+#dSalts .mbtn b{font-size:.95rem}
+.mbtn:disabled{opacity:.4;cursor:default}
+#beaker{display:block;width:100%;height:auto;margin-top:12px;background:var(--paper);border-radius:8px}
+.series{display:grid;gap:4px;margin-top:10px}
+.series div{display:grid;grid-template-columns:2.6em 1fr auto;gap:10px;align-items:center;padding:4px 10px;border-radius:6px;border:1.5px solid transparent;font-size:.92rem}
+.series div b{font-family:var(--f-display);font-size:1.05rem}
+.series div.ref{color:var(--muted);font-style:italic}
+.series div.m{border-color:var(--accent);background:var(--accent-soft)}
+.series div.s{border-color:var(--push);background:color-mix(in oklab,var(--push) 14%,var(--card))}
+.series .tag{font:600 .7rem var(--f-mono);text-transform:uppercase;letter-spacing:.05em}
+.series .top,.series .bot{font:600 .72rem var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border:none;padding:2px 10px;display:block}
+table.grid5 td,table.grid5 th{text-align:center}
+table.grid5 td:first-child,table.grid5 th:first-child{text-align:left}
+table.grid5 td.y{color:var(--good);font-weight:700}
+table.grid5 td.n{color:var(--bad);font-weight:700}
+.dpred{display:grid;gap:14px;margin-top:10px}
+.dpred .q{display:grid;gap:6px}
+.dpred .row{display:flex;flex-wrap:wrap;gap:8px}
+.dpred .row button{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.dpred .row button.right{border-color:var(--good)}
+.dpred .row button.wrong{border-color:var(--bad)}
+.dpred .fb{font-size:.9rem}
+#hal .metal-btns{margin:6px 0 0}
+.eq:empty{display:none}
+@media (min-width:861px){#hal .lab-left,#disp .lab-left{width:520px}}
+#hal .mbtn span,#disp .mbtn span{white-space:nowrap}
+#hY .mbtn{background:var(--paper)}
+#hX .mbtn{background:var(--t-nonmetal)}
+#tube{display:block;width:100%;height:auto;margin-top:12px;background:var(--paper);border-radius:8px}
+.hcol{display:grid;gap:6px;margin-top:10px}
+.hcol div{display:grid;grid-template-columns:2.4em 1fr auto;gap:10px;align-items:center;padding:6px 10px;border-radius:6px;border:1.5px solid transparent;font-size:.92rem}
+.hcol div b{font-family:var(--f-display);font-size:1.05rem}
+.hcol div.m{border-color:var(--accent);background:var(--accent-soft)}
+.hcol div.s{border-color:var(--push);background:color-mix(in oklab,var(--push) 14%,var(--card))}
+.hcol svg{width:44px;height:44px}
+.hcol .tag{font:600 .7rem var(--f-mono);text-transform:uppercase;letter-spacing:.05em}
+.hcol .top{font:600 .72rem var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border:none;padding:2px 10px;display:block}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-left:4px;border:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Periodic <span>Trends</span> Lab</h1>
+    <p>The Periodic Table is a map with patterns built into it. Explore the patterns, test the Group I metals in water, see which metals displace others, then try the challenge.</p>
+  </div>
+  <div class="badge">IGCSE Chemistry · Ch 9 → Ch 10 Metals</div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="tab-explore" aria-selected="true" data-tab="explore"><small>1</small>Explore the table</button>
+  <button role="tab" id="tab-lab" aria-selected="false" data-tab="lab"><small>2</small>Group I water test</button>
+  <button role="tab" id="tab-disp" aria-selected="false" data-tab="disp"><small>3</small>Metal displacement</button>
+  <button role="tab" id="tab-quiz" aria-selected="false" data-tab="quiz"><small>4</small>Trend challenge</button>
+  <button role="tab" id="tab-hal" aria-selected="false" data-tab="hal"><small>5</small>Halogen displacement</button>
+</nav>
+
+<!-- ============ EXPLORE ============ -->
+<section id="explore" role="tabpanel">
+  <div class="panel">
+    <div class="chips" id="modes"></div>
+    <div class="table-scroll" style="margin-top:14px"><div class="ptable" id="ptable"></div></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="panel pattern" id="pattern" style="margin-top:16px"></div>
+</section>
+
+<!-- ============ LAB ============ -->
+<section id="lab" role="tabpanel" hidden>
+  <div class="lab-grid">
+    <div class="panel lab-left">
+      <h2 style="font-size:1.5rem">Drop a Group I metal into water</h2>
+      <p class="muted" style="margin:6px 0 0">The water has universal indicator in it. Pick a metal, drop it in and watch closely. <b style="color:var(--ink)">Complete the Challenge Below.</b></p>
+      <div class="metal-btns" id="metalBtns"></div>
+      <canvas id="trough" aria-label="Animated trough of water showing the reaction"></canvas>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <button class="go" id="dropBtn">Drop it in</button>
+        <span class="muted" id="timer" style="font-family:var(--f-mono)"></span>
+      </div>
+      <div class="obs" id="obs">Choose a metal to start. Start with lithium at the top of the group.</div>
+      <div class="eq" id="eq"></div>
+      <div class="note">Tested all five? Check your results table below, complete <b>Your conclusions</b>, then try the <b>Trend challenge</b>.</div>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:1.25rem">Why the change?</h3>
+      <svg class="forces" id="labAtom" viewBox="0 0 370 322" aria-label="Forces on the outer electron"></svg>
+      <div class="fbars" id="fbars"></div>
+      <div class="note" id="labWhy"></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <h3 style="font-size:1.25rem">Results table</h3>
+    <div class="tbl-wrap"><table class="data" id="labTable"></table></div>
+    <h3 style="font-size:1.15rem;margin-top:18px">Your conclusions</h3>
+    <p class="muted" style="margin:4px 0 0">Test at least three metals, then complete each sentence.</p>
+    <div class="concl" id="concl"></div>
+    <div style="margin-top:12px"><button class="go" id="checkConcl">Check my conclusions</button> <span id="conclResult"></span></div>
+  </div>
+</section>
+
+<!-- ============ DISPLACEMENT ============ -->
+<section id="disp" role="tabpanel" hidden>
+  <div class="lab-grid">
+    <div class="panel lab-left">
+      <h2 style="font-size:1.5rem">Metal displacement</h2>
+      <p class="muted" style="margin:6px 0 0">Choose a metal and a solution, add the metal and watch the strip and the solution. <b style="color:var(--ink)">Test every pair, then complete the challenge below.</b></p>
+      <div class="dlabel">Metal strip</div>
+      <div class="metal-btns" id="dMetals"></div>
+      <div class="dlabel">Solution</div>
+      <div class="metal-btns" id="dSalts"></div>
+      <svg id="beaker" viewBox="0 0 300 250" aria-label="Beaker showing the displacement reaction"></svg>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <button class="go" id="dAdd">Add the metal</button>
+      </div>
+      <div class="obs" id="dObs">Pick a metal strip and a solution.</div>
+      <div class="eq" id="dEq"></div>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:1.25rem">Reactivity series</h3>
+      <div class="series" id="series"></div>
+      <div class="note" id="dWhy"></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <h3 style="font-size:1.25rem">Results grid</h3>
+    <p class="muted" style="margin:4px 0 0">✓ = reaction, ✗ = no reaction. Fills in as you test.</p>
+    <div class="tbl-wrap"><table class="data grid5" id="dGrid"></table></div>
+    <h3 style="font-size:1.15rem;margin-top:18px">Challenge 1: rank the metals</h3>
+    <p class="muted" style="margin:4px 0 0">Use your results. The metal with the most ✓ is the most reactive.</p>
+    <div class="concl" id="dRank"></div>
+    <div style="margin-top:12px"><button class="go" id="dCheckRank">Check my order</button> <span id="dRankResult"></span></div>
+    <h3 style="font-size:1.15rem;margin-top:22px">Challenge 2: predict</h3>
+    <p class="muted" style="margin:4px 0 0">These metals are not on the bench. Use the reactivity series.</p>
+    <div class="dpred" id="dPred"></div>
+  </div>
+</section>
+
+<!-- ============ HALOGEN DISPLACEMENT ============ -->
+<section id="hal" role="tabpanel" hidden>
+  <div class="lab-grid">
+    <div class="panel lab-left">
+      <h2 style="font-size:1.5rem">Halogen displacement</h2>
+      <p class="muted" style="margin:6px 0 0">If a more reactive halogen reacts with a compound of a less reactive halogen, the less reactive halogen is displaced. Mix a halogen water with a sodium halide solution, then add an organic solvent and shake. <b style="color:var(--ink)">Test every pair, then complete the challenge below.</b></p>
+      <div class="dlabel">Halogen solution</div>
+      <div class="metal-btns" id="hX"></div>
+      <div class="dlabel">Sodium halide solution</div>
+      <div class="metal-btns" id="hY"></div>
+      <svg id="tube" viewBox="0 0 300 260" aria-label="Test tube showing the halogen displacement reaction"></svg>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <button class="go" id="hAdd">Add halogen solution</button>
+        <button class="go" id="hShake" disabled>Add organic solvent and shake</button>
+      </div>
+      <div class="obs" id="hObs">Pick a halogen solution and a potassium halide solution.</div>
+      <div class="eq" id="hEq"></div>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:1.25rem">Group VII</h3>
+      <div class="hcol" id="hCol"></div>
+      <div class="note" id="hWhy"></div>
+      <div class="note" style="background:var(--paper);border:1px solid var(--line)">In contrast to the elements of Groups I and II, the order of reactivity <b>decreases</b> going down Group VII.</div>
+      <h3 style="font-size:1.05rem;margin-top:14px">Halogen colours</h3>
+      <div class="tbl-wrap" style="margin-top:6px"><table class="data" style="min-width:0"><thead><tr><th>Halogen</th><th>In water</th><th>In organic solvent</th></tr></thead>
+      <tbody><tr><td>Chlorine</td><td>Colourless</td><td>Pale green</td></tr><tr><td>Bromine</td><td>Orange</td><td>Orange</td></tr><tr><td>Iodine</td><td>Brown</td><td>Violet</td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <h3 style="font-size:1.25rem">Results grid</h3>
+    <p class="muted" style="margin:4px 0 0">✓ = reaction, ✗ = no reaction. The colour is the upper (organic) layer.</p>
+    <div class="tbl-wrap"><table class="data grid5" id="hGrid"></table></div>
+    <h3 style="font-size:1.15rem;margin-top:18px">Challenge 1: rank the halogens</h3>
+    <p class="muted" style="margin:4px 0 0">Use your results. The halogen that displaces the most others is the most reactive.</p>
+    <div class="concl" id="hRank"></div>
+    <div style="margin-top:12px"><button class="go" id="hCheckRank">Check my order</button> <span id="hRankResult"></span></div>
+    <h3 style="font-size:1.15rem;margin-top:22px">Challenge 2: predict and explain</h3>
+    <div class="dpred" id="hPred"></div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" role="tabpanel" hidden>
+  <div class="panel quiz" id="quizBox"></div>
+</section>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const RAW = [
+ [1,'H','Hydrogen',1,1,'nonmetal'],[2,'He','Helium',1,18,'noble'],
+ [3,'Li','Lithium',2,1,'metal'],[4,'Be','Beryllium',2,2,'metal'],[5,'B','Boron',2,13,'metalloid'],[6,'C','Carbon',2,14,'nonmetal'],[7,'N','Nitrogen',2,15,'nonmetal'],[8,'O','Oxygen',2,16,'nonmetal'],[9,'F','Fluorine',2,17,'nonmetal'],[10,'Ne','Neon',2,18,'noble'],
+ [11,'Na','Sodium',3,1,'metal'],[12,'Mg','Magnesium',3,2,'metal'],[13,'Al','Aluminium',3,13,'metal'],[14,'Si','Silicon',3,14,'metalloid'],[15,'P','Phosphorus',3,15,'nonmetal'],[16,'S','Sulfur',3,16,'nonmetal'],[17,'Cl','Chlorine',3,17,'nonmetal'],[18,'Ar','Argon',3,18,'noble'],
+ [19,'K','Potassium',4,1,'metal'],[20,'Ca','Calcium',4,2,'metal'],
+ [21,'Sc','Scandium',4,3,'trans'],[22,'Ti','Titanium',4,4,'trans'],[23,'V','Vanadium',4,5,'trans'],[24,'Cr','Chromium',4,6,'trans'],[25,'Mn','Manganese',4,7,'trans'],[26,'Fe','Iron',4,8,'trans'],[27,'Co','Cobalt',4,9,'trans'],[28,'Ni','Nickel',4,10,'trans'],[29,'Cu','Copper',4,11,'trans'],[30,'Zn','Zinc',4,12,'trans'],
+ [31,'Ga','Gallium',4,13,'metal'],[32,'Ge','Germanium',4,14,'metalloid'],[33,'As','Arsenic',4,15,'metalloid'],[34,'Se','Selenium',4,16,'nonmetal'],[35,'Br','Bromine',4,17,'nonmetal'],[36,'Kr','Krypton',4,18,'noble'],
+ [37,'Rb','Rubidium',5,1,'metal'],[38,'Sr','Strontium',5,2,'metal'],
+ [39,'Y','Yttrium',5,3,'trans'],[40,'Zr','Zirconium',5,4,'trans'],[41,'Nb','Niobium',5,5,'trans'],[42,'Mo','Molybdenum',5,6,'trans'],[43,'Tc','Technetium',5,7,'trans'],[44,'Ru','Ruthenium',5,8,'trans'],[45,'Rh','Rhodium',5,9,'trans'],[46,'Pd','Palladium',5,10,'trans'],[47,'Ag','Silver',5,11,'trans'],[48,'Cd','Cadmium',5,12,'trans'],
+ [49,'In','Indium',5,13,'metal'],[50,'Sn','Tin',5,14,'metal'],[51,'Sb','Antimony',5,15,'metalloid'],[52,'Te','Tellurium',5,16,'metalloid'],[53,'I','Iodine',5,17,'nonmetal'],[54,'Xe','Xenon',5,18,'noble'],
+ [55,'Cs','Caesium',6,1,'metal'],[56,'Ba','Barium',6,2,'metal'],
+ [72,'Hf','Hafnium',6,4,'trans'],[73,'Ta','Tantalum',6,5,'trans'],[74,'W','Tungsten',6,6,'trans'],[75,'Re','Rhenium',6,7,'trans'],[76,'Os','Osmium',6,8,'trans'],[77,'Ir','Iridium',6,9,'trans'],[78,'Pt','Platinum',6,10,'trans'],[79,'Au','Gold',6,11,'trans'],[80,'Hg','Mercury',6,12,'trans'],
+ [81,'Tl','Thallium',6,13,'metal'],[82,'Pb','Lead',6,14,'metal'],[83,'Bi','Bismuth',6,15,'metal'],[84,'Po','Polonium',6,16,'metal'],[85,'At','Astatine',6,17,'nonmetal'],[86,'Rn','Radon',6,18,'noble'],
+ [87,'Fr','Francium',7,1,'metal'],[88,'Ra','Radium',7,2,'metal']
+];
+// approximate atomic radii in picometres (pm)
+const RAD = {H:31,He:28,Li:128,Be:96,B:84,C:76,N:71,O:66,F:57,Ne:58,Na:166,Mg:141,Al:121,Si:111,P:107,S:105,Cl:102,Ar:106,K:203,Ca:176,Sc:170,Ti:160,V:153,Cr:139,Mn:139,Fe:132,Co:126,Ni:124,Cu:132,Zn:122,Ga:122,Ge:120,As:119,Se:120,Br:120,Kr:116,Rb:220,Sr:195,Y:190,Zr:175,Nb:164,Mo:154,Tc:147,Ru:146,Rh:142,Pd:139,Ag:145,Cd:144,In:142,Sn:139,Sb:139,Te:138,I:139,Xe:140,Cs:244,Ba:215,Hf:175,Ta:170,W:162,Re:151,Os:144,Ir:141,Pt:136,Au:136,Hg:132,Tl:145,Pb:146,Bi:148,Po:140,At:150,Rn:150,Fr:260,Ra:221};
+const FACTS = {
+ H:'Colourless gas. Has 1 outer electron like Group I, but is 1 electron short of a full shell like Group VII, so it sits on its own.',
+ He:'Colourless, unreactive gas. Used in balloons because it is light and will not burn.',
+ Li:'Soft, silvery metal. Melts at 181 °C. Density 0.53 g/cm³, so it floats on water. Stored under oil.',
+ Na:'Soft enough to cut with a knife. Shiny when freshly cut, then tarnishes. Melts at 98 °C. Stored under oil.',
+ K:'Very soft. Melts at 63 °C. Reacts very vigorously with water with a lilac flame.',
+ Rb:'Melts at 39 °C — it would melt on a very hot day. Reacts violently with water.',
+ Cs:'Melts at 28 °C. Explodes on contact with water. Never used in schools.',
+ Fr:'Radioactive and extremely rare. Predicted to be the most reactive Group I metal.',
+ Be:'Hard, light metal. The least reactive Group II metal.',
+ Mg:'Burns with a bright white flame to make white magnesium oxide. Reacts slowly with cold water but quickly with steam.',
+ Ca:'Reacts steadily with cold water, giving bubbles of hydrogen and cloudy calcium hydroxide.',
+ Al:'Light, strong metal. Used for aircraft bodies and drinks cans.',
+ C:'Non-metal. Found as diamond and graphite.',
+ Si:'Metalloid. A semiconductor used to make computer chips.',
+ S:'Yellow, brittle non-metal solid.',
+ F:'Pale yellow gas. The most reactive halogen.',
+ Cl:'Pale yellow-green toxic gas. Kills bacteria in drinking water.',
+ Br:'Red-brown liquid at room temperature. Gives off orange-brown vapour.',
+ I:'Grey-black solid. Forms a brown solution in water.',
+ At:'Radioactive and very rare. Predicted to be a dark solid, and the least reactive halogen.',
+ Ne:'Colourless, unreactive gas. Glows red-orange in advertising signs.',
+ Ar:'Colourless, unreactive gas. Fills light bulbs so the hot filament does not react with air.',
+ Kr:'Colourless, unreactive gas.',
+ Fe:'Transition metal. Forms Fe²⁺ (pale green) and Fe³⁺ (yellow-brown) ions. Used as the catalyst in the Haber process.',
+ Cu:'Transition metal. Excellent conductor of electricity, used in wiring. Cu²⁺ compounds are blue.',
+ Zn:'Used to coat (galvanise) steel so it does not rust.',
+ Cr:'Added to steel to make stainless steel. Forms orange dichromate compounds.',
+ Ni:'Used in coins and in the alloy Monel, which resists sea water.',
+ Ag:'Shiny, unreactive metal. Best conductor of electricity of all metals.',
+ Au:'Very unreactive. Stays shiny for thousands of years.',
+ Pt:'Very unreactive. Used as a catalyst in car catalytic converters.',
+ Hg:'The only metal that is liquid at room temperature.',
+ Pb:'Dense, soft metal. Toxic.',
+ Sn:'Metal, even though it is in the same group as carbon. Metallic character increases down a group.'
+};
+const ROMAN = {1:'I',2:'II',13:'III',14:'IV',15:'V',16:'VI',17:'VII',18:'VIII (0)'};
+const E = RAW.map(([z,s,n,p,g,c])=>({z,s,n,p,g,c}));
+const BY = Object.fromEntries(E.map(e=>[e.s,e]));
+const isMain = e => e.g<=2 || e.g>=13;
+function outerE(e){ if(!isMain(e)) return null; if(e.g===18) return e.p===1?2:8; return e.g<=2?e.g:e.g-10; }
+function shells(e){
+  if(!isMain(e)) return null;
+  const o = outerE(e);
+  const early = e.g<=2;
+  const inner = {1:[],2:[2],3:[2,8],4:early?[2,8,8]:[2,8,18],5:early?[2,8,18,8]:[2,8,18,18],6:early?[2,8,18,18,8]:[2,8,18,32,18],7:[2,8,18,32,18,8]}[e.p];
+  return [...inner,o];
+}
+function ionOf(e){
+  const map={1:'1+',2:'2+',13:'3+',15:'3−',16:'2−',17:'1−'};
+  if(e.s==='H') return 'H⁺ (it can also form H⁻)';
+  if(e.g===18) return 'Does not form ions';
+  if(e.g===14) return 'Does not usually form simple ions';
+  if(e.s==='B'||e.c==='metalloid') return 'Does not usually form simple ions';
+  if(e.g>=15 && e.c!=='nonmetal') return '—';
+  if(e.c==='trans') return TION[e.s] || 'Can form more than one ion';
+  if(e.g===15 && e.p>3) return '—';
+  if(e.g===13 && e.s!=='Al') return '3+';
+  const sup = {'1+':'⁺','2+':'²⁺','3+':'³⁺','1−':'⁻','2−':'²⁻','3−':'³⁻'}[map[e.g]];
+  return map[e.g] ? (e.s + sup + (e.g<=13?'  (loses '+outerE(e)+' electron'+(outerE(e)>1?'s':'')+')':'  (gains '+(8-outerE(e))+' electron'+(8-outerE(e)>1?'s':'')+')')) : '—';
+}
+const TION={Sc:'Sc³⁺ only (one ion)',Ti:'Ti²⁺, Ti³⁺, Ti⁴⁺',V:'V²⁺, V³⁺ and others',Cr:'Cr²⁺, Cr³⁺',Mn:'Mn²⁺ and others',Fe:'Fe²⁺, Fe³⁺',Co:'Co²⁺, Co³⁺',Ni:'Ni²⁺',Cu:'Cu⁺, Cu²⁺',Zn:'Zn²⁺ only (one ion)',Y:'Y³⁺ only (one ion)',Ag:'Ag⁺',Cd:'Cd²⁺ only (one ion)',Au:'Au⁺, Au³⁺',Pt:'Pt²⁺, Pt⁴⁺',Hg:'Hg⁺, Hg²⁺'};
+const CATNAME={metal:'Metal',trans:'Transition metal',metalloid:'Metalloid (between metal and non-metal)',nonmetal:'Non-metal',noble:'Noble gas (non-metal)'};
+
+/* ---------------- TABS ---------------- */
+const tabs=[...document.querySelectorAll('nav.tabs button')];
+function showTab(id){
+  tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id));
+  ['explore','lab','disp','quiz','hal'].forEach(s=>document.getElementById(s).hidden = s!==id);
+  try{localStorage.setItem('ptl-tab',id)}catch(e){}
+  if(id==='lab') sizeCanvas();
+}
+tabs.forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+/* ---------------- BOHR SVG ---------------- */
+function bohrSVG(sh, sym, z){
+  if(!sh) return '';
+  const cx=110, cy=110, n=sh.length, step = Math.min(16, 88/(n));
+  let out = `<circle cx="${cx}" cy="${cy}" r="16" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <text x="${cx}" y="${cy+4}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="var(--ink)">${z}+</text>`;
+  sh.forEach((count,i)=>{
+    const r = 22 + step*(i+1);
+    const outer = i===n-1;
+    out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--muted)" stroke-opacity=".55" stroke-width="1"/>`;
+    const dot = 3.2;
+    for(let k=0;k<count;k++){
+      const a = -Math.PI/2 + k*2*Math.PI/count + i*0.3;
+      out += `<circle cx="${(cx+r*Math.cos(a)).toFixed(1)}" cy="${(cy+r*Math.sin(a)).toFixed(1)}" r="${dot}" fill="${outer?'var(--accent)':'var(--ink)'}"/>`;
+    }
+  });
+  return out;
+}
+
+/* ---------------- EXPLORE ---------------- */
+const MODES = [
+ {id:'type',label:'Metal or non-metal'},
+ {id:'outer',label:'Outer electrons (group)'},
+ {id:'shells',label:'Electron shells (period)'},
+ {id:'size',label:'Atom size'},
+ {id:'react',label:'Reactivity'}
+];
+let mode='type', selected='Na';
+const stairRight = new Set(['B','Si','As','Te','Po']); // staircase: right edge after these? drawn as left edge of the non-metal side
+const minR = Math.min(...Object.values(RAD)), maxR = Math.max(...Object.values(RAD));
+
+function tileStyle(e){
+  const typeFill = {metal:'var(--t-metal)',trans:'var(--t-trans)',metalloid:'var(--t-metalloid)',nonmetal:'var(--t-nonmetal)',noble:'var(--t-noble)'}[e.c];
+  if(mode==='type') return {bg:typeFill, v:''};
+  if(mode==='outer'){
+    const o=outerE(e); if(o==null) return {bg:'var(--t-none)',v:'',dim:true};
+    const pct = e.g===18?100:(o-1)/7*100;
+    return heat(pct,'--heat-hi',o);
+  }
+  if(mode==='shells'){ return heat((e.p-1)/6*100,'--heat-hi',e.p); }
+  if(mode==='size'){ const r=RAD[e.s]; return heat((r-minR)/(maxR-minR)*100,'--heat-hi',r); }
+  if(mode==='react'){
+    let pct=null;
+    if(e.g===1 && e.s!=='H') pct = 25+ (e.p-2)*15;
+    if(e.g===2) pct = 10+(e.p-2)*12;
+    if(e.g===17) pct = 85-(e.p-2)*16;
+    if(e.g===18) return {bg:'var(--t-noble)',v:'inert'};
+    if(pct==null) return {bg:'var(--t-none)',v:'',dim:true};
+    return heat(pct,'--react-hi','');
+  }
+}
+function heat(pct,hi,label){
+  pct=Math.max(0,Math.min(100,pct));
+  return {bg:`color-mix(in oklab, var(${hi}) ${pct.toFixed(0)}%, var(--heat-lo))`, fg: pct>55?'var(--heat-text-hi)':'var(--ink)', v:label};
+}
+function buildModes(){
+  const m=document.getElementById('modes');
+  m.innerHTML = MODES.map(x=>`<button class="chip" aria-pressed="${x.id===mode}" data-m="${x.id}">${x.label}</button>`).join('');
+  m.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{mode=b.dataset.m;buildModes();renderTable();renderPattern();});
+}
+function renderTable(){
+  const t=document.getElementById('ptable');
+  let h='<div></div>';
+  for(let g=1;g<=18;g++) h+=`<div class="ghead" style="grid-column:${g+1};grid-row:1">${ROMAN[g]? (g===18?'0':ROMAN[g]) : g}</div>`;
+  for(let p=1;p<=7;p++) h+=`<div class="plabel" style="grid-column:1;grid-row:${p+1}">${p}</div>`;
+  E.forEach(e=>{
+    const st=tileStyle(e);
+    const cls=['tile']; if(e.s===selected) cls.push('sel'); if(st.dim) cls.push('dim');
+    if(mode==='type' && stairRight.has(e.s)) cls.push('stair');
+    h+=`<button class="${cls.join(' ')}" data-s="${e.s}" style="grid-column:${e.g+1};grid-row:${e.p+1};background:${st.bg};color:${st.fg||'var(--ink)'}" aria-label="${e.n}, proton number ${e.z}">
+      <span class="z">${e.z}</span><span class="s">${e.s}</span><span class="v">${st.v??''}</span></button>`;
+  });
+  h+=`<div class="tile ph" style="grid-column:4;grid-row:7">57–71</div><div class="tile ph" style="grid-column:4;grid-row:8">89–103</div>`;
+  h+=`<div class="tile ph" style="grid-column:5 / span 15;grid-row:8;aspect-ratio:auto">Rest of Period 7 not shown — all radioactive, made in laboratories</div>`;
+  h+=`<div class="tdetail" id="detail" style="grid-column:4 / span 10;grid-row:2 / span 3"></div>`;
+  t.innerHTML=h;
+  t.querySelectorAll('button.tile').forEach(b=>b.onclick=()=>{selected=b.dataset.s;renderTable();});
+  renderLegend(); renderDetail();
+}
+function renderLegend(){
+  const L=document.getElementById('legend');
+  if(mode==='type') L.innerHTML = [['--t-metal','Metal'],['--t-trans','Transition metal'],['--t-metalloid','Metalloid'],['--t-nonmetal','Non-metal'],['--t-noble','Noble gas']]
+    .map(([c,n])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('') + `<span><b style="border-left:3px solid var(--ink);padding-left:6px">thick line</b> = metal / non-metal dividing line</span>`;
+  else if(mode==='outer') L.innerHTML = `<span>1 outer electron</span><span class="heatbar"></span><span>8 (full)</span><span class="muted">Grey = transition metals (not counted the simple way at IGCSE)</span>`;
+  else if(mode==='shells') L.innerHTML = `<span>1 shell</span><span class="heatbar"></span><span>7 shells</span>`;
+  else if(mode==='size') L.innerHTML = `<span>Small atom</span><span class="heatbar"></span><span>Large atom</span><span class="muted">Numbers are atomic radius in pm (1 pm = a millionth of a millionth of a metre)</span>`;
+  else L.innerHTML = `<span>Less reactive</span><span class="heatbar react"></span><span>More reactive</span><span class="muted">Only Groups I, II and VII are shaded — the groups you need to compare.</span>`;
+}
+const PATTERNS = {
+ type:`<h3>Metals on the left, non-metals on the right</h3>
+  <p>Most elements are metals. A staircase line separates them from the non-metals. Elements right next to the line, like silicon, are <b>metalloids</b> — they behave partly like both.</p>
+  <ul><li><span class="arrow">→ across a period</span> elements change from metal to non-metal. Na, Mg, Al are metals; Si is a metalloid; P, S, Cl are non-metals; Ar is a noble gas.</li>
+  <li><span class="arrow">↓ down a group</span> elements get <b>more metallic</b>. In Group IV, carbon is a non-metal but tin and lead are metals.</li>
+  <li>Why? Metals react by <b>losing</b> outer electrons. Atoms with few outer electrons that are far from the nucleus lose them most easily.</li></ul>`,
+ outer:`<h3>Group number = number of outer electrons</h3>
+  <p>Every element in a group has the same number of electrons in its outer shell. That is why elements in a group react in the same way.</p>
+  <ul><li><span class="arrow">→ across a period</span> one more proton and one more outer electron each step: Na has 1, Mg has 2 … Cl has 7.</li>
+  <li><span class="arrow">↓ down a group</span> the number of outer electrons stays the same.</li>
+  <li>Group 0 (VIII) is the exception: noble gases have a <b>full</b> outer shell (2 for helium, 8 for the rest).</li>
+  <li>Metals (Groups I–III) lose these electrons to form <b>positive</b> ions. Non-metals (Groups V–VII) gain electrons to form <b>negative</b> ions.</li></ul>`,
+ shells:`<h3>Period number = number of electron shells</h3>
+  <p>Each new row starts a new electron shell. Sodium (2,8,1) has 3 shells, so it is in Period 3. Potassium (2,8,8,1) has 4 shells, so it is in Period 4.</p>
+  <ul><li><span class="arrow">→ across a period</span> the number of shells stays the same.</li>
+  <li><span class="arrow">↓ down a group</span> each step adds one more shell. The outer electrons end up further and further from the nucleus.</li>
+  <li>That extra distance is the key to almost every trend in this topic.</li></ul>`,
+ size:`<h3>Atoms get bigger down a group and smaller across a period</h3>
+  <ul><li><span class="arrow">↓ down a group</span> atoms get <b>bigger</b>, because a whole new shell of electrons is added each time.</li>
+  <li><span class="arrow">→ across a period</span> atoms get <b>smaller</b>. The number of shells stays the same, but there are more protons in the nucleus pulling the electrons in tighter.</li>
+  <li>The biggest atoms are bottom-left (caesium, francium). The smallest are top-right (fluorine, helium).</li></ul>`,
+ react:`<h3>Metals and non-metals go opposite ways</h3>
+  <ul><li><span class="arrow">↓ Group I and II</span> get <b>more</b> reactive going down. These metals react by <b>losing</b> outer electrons. Bigger atom → outer electron further from the nucleus → weaker pull → easier to lose.</li>
+  <li><span class="arrow">↑ Group VII</span> get <b>more</b> reactive going <b>up</b>. Halogens react by <b>gaining</b> an electron. Smaller atom → the incoming electron is closer to the nucleus → stronger pull → easier to gain.</li>
+  <li><b>Group 0</b> hardly reacts at all: the outer shell is already full.</li>
+  <li><b>Group I is more reactive than Group II</b> in the same period: losing 1 electron is easier than losing 2.</li></ul>
+  <p class="note">Exam tip: explain a reactivity trend in steps — size of atom → distance of outer shell from nucleus → strength of pull → how easily electrons are lost or gained.</p>`
+};
+function renderPattern(){ document.getElementById('pattern').innerHTML = PATTERNS[mode]; }
+function renderDetail(){
+  const e=BY[selected], sh=shells(e), d=document.getElementById('detail');
+  const grp = ROMAN[e.g] ? 'Group '+ROMAN[e.g] : 'Transition block';
+  d.innerHTML = `${sh?`<svg class="bohr" viewBox="0 0 220 220" aria-label="Electron shell diagram">${bohrSVG(sh,e.s,e.z)}</svg>`:''}
+    <div style="min-width:0;${sh?'':'grid-column:1 / -1'}"><h2><span class="sym">${e.s}</span>${e.n}</h2>
+    <dl class="facts">
+      <dt>Type</dt><dd>${CATNAME[e.c]}</dd><dt>Proton no.</dt><dd>${e.z}</dd>
+      <dt>Position</dt><dd>${grp}, Period ${e.p}</dd><dt>Atom size</dt><dd class="mono">${RAD[e.s]} pm</dd>
+      <dt>Electrons</dt><dd class="mono">${sh? sh.join(','): '<span style="font-family:var(--f-body)">not needed at IGCSE</span>'}</dd>${sh?`<dt>Outer e⁻</dt><dd>${outerE(e)}${e.g===18?' (full)':''}</dd>`:'<dt></dt><dd></dd>'}
+      <dt>Ion</dt><dd style="grid-column:2 / -1">${ionOf(e)}</dd>
+    </dl>
+    ${FACTS[e.s]?`<div class="note">${FACTS[e.s]}</div>`:''}</div>
+    ${sh?'<div class="tk muted">Orange dots = outer electrons</div>':''}`;
+}
+
+/* ---------------- LAB ---------------- */
+const METALS = {
+ Li:{mp:181,dens:0.53,floats:true,life:9,speed:.35,bub:.5,flame:null,explode:0,pull:90,
+   obs:'Floats. Fizzes steadily and moves slowly around the surface. Gets smaller until it disappears. Indicator turns purple — an alkali has formed.'},
+ Na:{mp:98,dens:0.97,floats:true,life:5.5,speed:1.2,bub:1.1,flame:null,explode:0,pull:72,melt:true,
+   obs:'Floats. Melts into a shiny silver ball and whizzes around fizzing quickly. Disappears faster than lithium. Indicator turns purple.'},
+ K:{mp:63,dens:0.86,floats:true,life:3.4,speed:2.4,bub:2,flame:'#b58cff',explode:.5,pull:55,melt:true,
+   obs:'Floats. Melts at once and races around. The hydrogen catches fire with a lilac flame. Ends with a small crack. Indicator turns purple.'},
+ Rb:{mp:39,dens:1.53,floats:false,life:1.6,speed:0,bub:4,flame:'#d36aa8',explode:1,pull:44,
+   obs:'Sinks (denser than water). Reacts violently straight away and splashes water out of the trough.'},
+ Cs:{mp:28,dens:1.93,floats:false,life:.8,speed:0,bub:6,flame:'#8fa8ff',explode:2,pull:34,
+   obs:'Sinks and explodes almost instantly. The trough could shatter. This is the most reactive metal you could test.'}
+};
+const ORDER=['Li','Na','K','Rb','Cs'];
+let labSel='Li', tested=new Set(), anim=null;
+const cv=document.getElementById('trough'), ctx=cv.getContext('2d');
+let W=600,H=280;
+function sizeCanvas(){
+  const r=cv.getBoundingClientRect(); if(!r.width) return;
+  const dpr=window.devicePixelRatio||1; W=r.width; H=280;
+  cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(!anim) drawScene(null);
+}
+window.addEventListener('resize',sizeCanvas);
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function lerpColor(a,b,t){ // hex
+  const pa=[1,3,5].map(i=>parseInt(a.slice(i,i+2),16)), pb=[1,3,5].map(i=>parseInt(b.slice(i,i+2),16));
+  return 'rgb('+pa.map((v,i)=>Math.round(v+(pb[i]-v)*t)).join(',')+')';
+}
+function drawScene(s){
+  const ink=css('--ink'), muted=css('--muted');
+  ctx.clearRect(0,0,W,H);
+  let shake = s&&s.shake? (Math.random()-.5)*s.shake : 0;
+  ctx.save(); ctx.translate(shake,0);
+  const tx=30, tw=W-60, top=70, bottom=H-20, waterY=110;
+  const alk = s? s.alk : 0;
+  // water
+  ctx.fillStyle = lerpColor('#5fae55','#7d4fb8',alk);
+  ctx.globalAlpha=.85; ctx.fillRect(tx,waterY,tw,bottom-waterY); ctx.globalAlpha=1;
+  // surface line
+  ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=2; ctx.beginPath();
+  for(let x=tx;x<=tx+tw;x+=6){ const y=waterY+Math.sin(x/18+(s?s.t*4:0))*(s&&s.running?1.6:.6); x===tx?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+  // trough glass
+  ctx.strokeStyle=ink; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(tx,top); ctx.lineTo(tx,bottom); ctx.lineTo(tx+tw,bottom); ctx.lineTo(tx+tw,top); ctx.stroke();
+  ctx.fillStyle='#ffffff'; ctx.font='600 13px "JetBrains Mono", monospace'; ctx.fillText('water + universal indicator',tx+10,bottom-10);
+  ctx.font='700 20px "JetBrains Mono", monospace'; ctx.textAlign='right'; ctx.fillText('pH '+(7+6*alk).toFixed(1),tx+tw-10,bottom-10); ctx.textAlign='left';
+  if(s){
+    // bubbles
+    s.bubbles.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1.2;ctx.stroke();});
+    // metal
+    if(s.size>0.5){
+      ctx.fillStyle='#c8cdd6'; ctx.strokeStyle='#7d8696'; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      if(s.ball){ ctx.arc(s.x,s.y,s.size/2,0,7);} else { ctx.rect(s.x-s.size/2,s.y-s.size/2.6,s.size,s.size/1.3); }
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(s.x-s.size/6,s.y-s.size/6,Math.max(1.5,s.size/7),0,7); ctx.fill();
+    }
+    // flame
+    if(s.flame && s.size>0.5 && s.t>.25){
+      const fh = 26+Math.random()*16;
+      const g=ctx.createRadialGradient(s.x,s.y-fh/2,2,s.x,s.y-fh/2,fh);
+      g.addColorStop(0,'rgba(255,255,255,.9)'); g.addColorStop(.35,s.flame); g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(s.x,s.y-fh/2,10+Math.random()*4,fh,0,0,7); ctx.fill();
+    }
+    // sparks / splash
+    s.drops.forEach(d=>{ctx.fillStyle=d.c;ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,7);ctx.fill();});
+    if(s.flash>0){ctx.fillStyle=`rgba(255,250,235,${s.flash})`;ctx.fillRect(-10,0,W+20,H);}
+  } else {
+    ctx.fillStyle=muted; ctx.font='14px "Atkinson Hyperlegible", sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Pick a metal, then press “Drop it in”',W/2,40); ctx.textAlign='left';
+  }
+  // metal in tongs before drop
+  ctx.restore();
+}
+function startReaction(){
+  const m=METALS[labSel]; if(anim) cancelAnimationFrame(anim.raf);
+  const tx=30, tw=W-60, waterY=110, bottom=H-20;
+  const s={t:0,x:tx+tw/2,y:20,vy:0,vx:(Math.random()<.5?-1:1)*m.speed*60,size:22,ball:false,bubbles:[],drops:[],alk:0,flash:0,shake:0,running:true,landed:false,flame:m.flame,done:false,exploded:false};
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let last=performance.now();
+  document.getElementById('dropBtn').disabled=true;
+  document.getElementById('obs').textContent='…watch the trough…';
+  function step(now){
+    const dt=Math.min(.05,(now-last)/1000); last=now;
+    if(!s.landed){
+      s.vy+=900*dt; s.y+=s.vy*dt;
+      const restY = m.floats? waterY-4 : bottom-12;
+      if(s.y>=restY && (m.floats || s.y>=restY)){ s.y=restY; s.landed=true; s.t=0; }
+      else if(!m.floats && s.y>waterY){ s.vy*=0.92; }
+    } else {
+      s.t+=dt;
+      const frac=Math.min(1,s.t/m.life);
+      s.size=22*(1-frac);
+      if(m.melt && s.t>.25) s.ball=true;
+      s.alk=Math.min(1,s.alk+dt*(0.9/m.life)*1.6);
+      if(m.floats){
+        s.x+=s.vx*dt*(0.6+Math.random()*0.8);
+        if(Math.random()<dt*1.5) s.vx*=-1;
+        if(s.x<tx+16){s.x=tx+16;s.vx=Math.abs(s.vx);} if(s.x>tx+tw-16){s.x=tx+tw-16;s.vx=-Math.abs(s.vx);}
+        s.y=waterY-4+Math.sin(s.t*9)*1.2;
+      }
+      // bubbles
+      if(s.size>.5){
+        const n = m.bub*60*dt;
+        for(let i=0;i<n+ (Math.random()<n%1?1:0);i++){
+          s.bubbles.push(m.floats? {x:s.x+(Math.random()-.5)*s.size*1.4,y:s.y+4+Math.random()*6,r:1+Math.random()*2.5,vy:-20,life:.4}
+                                 : {x:s.x+(Math.random()-.5)*20,y:s.y,r:1.5+Math.random()*3,vy:-90-Math.random()*90,life:2});
+        }
+      }
+      if(m.explode && !s.exploded && frac>=0.97){
+        s.exploded=true;
+        s.flash = m.explode>=2?0.95: m.explode>=1?0.55:0.25;
+        s.shake = reduce?0: m.explode*8;
+        const cnt = m.explode>=2?70: m.explode>=1?40:14;
+        for(let i=0;i<cnt;i++){
+          const a=-Math.PI*Math.random(), sp=(m.explode>=1?260:140)*(0.4+Math.random());
+          s.drops.push({x:s.x,y:m.floats?s.y:waterY,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:1.5+Math.random()*2.5,c:i%3?'rgba(140,110,200,.85)':'rgba(255,220,150,.95)',life:1.4});
+        }
+      }
+    }
+    s.bubbles.forEach(b=>{b.y+=b.vy*dt;b.life-=dt;});
+    s.bubbles=s.bubbles.filter(b=>b.life>0 && b.y>waterY-2);
+    s.drops.forEach(d=>{d.vy+=600*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;d.life-=dt;});
+    s.drops=s.drops.filter(d=>d.life>0&&d.y<H);
+    s.flash=Math.max(0,s.flash-dt*1.4); s.shake=Math.max(0,s.shake-dt*20);
+    document.getElementById('timer').textContent = s.landed? 't = '+s.t.toFixed(1)+' s':'';
+    drawScene(s);
+    if(s.landed && s.t>=m.life+1.2 && !s.bubbles.length && !s.drops.length){ finish(s); return; }
+    anim.raf=requestAnimationFrame(step);
+  }
+  anim={raf:requestAnimationFrame(step)};
+  function finish(s){
+    s.running=false; drawScene(s); anim=null;
+    document.getElementById('timer').textContent='Reaction over in about '+m.life.toFixed(1)+' s';
+    document.getElementById('obs').innerHTML='<b>Observation:</b> '+m.obs;
+    document.getElementById('dropBtn').disabled=false;
+    tested.add(labSel); renderMetalBtns(); renderLabTable();
+  }
+}
+function renderMetalBtns(){
+  const box=document.getElementById('metalBtns');
+  box.innerHTML=ORDER.map(s=>`<button class="mbtn" aria-pressed="${s===labSel}" data-s="${s}"><b>${s}</b><span>${BY[s].n}${tested.has(s)?' <span class="done">✓</span>':''}</span></button>`).join('');
+  box.querySelectorAll('.mbtn').forEach(b=>b.onclick=()=>{ if(anim) return; labSel=b.dataset.s; renderMetalBtns(); renderLabSide(); renderLabTable(); drawScene(null);
+    document.getElementById('obs').textContent='Ready: '+BY[labSel].n+'. Press “Drop it in”.'; document.getElementById('timer').textContent=''; });
+}
+const FORCE={Li:[108,18],Na:[102,30],K:[98,43],Rb:[95,51],Cs:[92,58]}; // [pull of nucleus, push from inner electrons] — illustrative
+let FG=null; // force-diagram geometry for the animation
+function arrowPts(xTail,xTip,y,h){
+  const d=Math.sign(xTip-xTail), L=14*d, hh=h+6;
+  return [[xTail,y-h],[xTip-L,y-h],[xTip-L,y-hh],[xTip,y],[xTip-L,y+hh],[xTip-L,y+h],[xTail,y+h]].map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ');
+}
+function forceSVG(e,sh,A,R){
+  const cx=150, cy=154, n=sh.length-1, rc=22+n*12, ro=rc+60, ex=cx+ro;
+  const inner=sh.slice(0,-1).join(',');
+  FG={cx,cy,ex,A,R,aTip:cx+20,aTail:ex-9,rTail:ex+9,rTip:ex+58};
+  return `
+  <defs><radialGradient id="cloudG">
+    <stop offset="0" style="stop-color:var(--push)" stop-opacity=".55"/>
+    <stop offset=".45" style="stop-color:var(--push)" stop-opacity=".32"/>
+    <stop offset=".8" style="stop-color:var(--push)" stop-opacity=".1"/>
+    <stop offset="1" style="stop-color:var(--push)" stop-opacity="0"/>
+  </radialGradient></defs>
+  <circle cx="${cx}" cy="${cy}" r="${ro}" fill="none" style="stroke:var(--muted)" stroke-opacity=".45" stroke-dasharray="3 4"/>
+  <circle cx="${cx}" cy="${cy}" r="${rc+14}" fill="url(#cloudG)"/>
+  <circle cx="${cx}" cy="${cy}" r="14" style="fill:var(--accent-soft);stroke:var(--accent)" stroke-width="1.5"/>
+  <text x="${cx}" y="${cy+4}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" style="fill:var(--ink)">${e.z}+</text>
+  <polygon id="arrA" style="fill:var(--accent)"/>
+  <polygon id="arrR" style="fill:var(--push)"/>
+  <circle cx="${ex}" cy="${cy}" r="6.5" style="fill:var(--accent);stroke:var(--card)" stroke-width="1.5"/>
+  <text x="${ex}" y="${cy-30}" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif" font-size="11" style="fill:var(--ink)">outer electron</text>
+  <text x="${cx}" y="${cy+ro+16}" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif" font-size="11" style="fill:var(--muted)">inner electrons (${inner}) shown as a cloud</text>`;
+}
+// sequential pulse: pull (0–1.6 s), push (1.8–3.4 s), rest; thickness shows force strength
+const PULSE_T=4.0;
+function drawForces(t){
+  if(!FG) return;
+  const a=document.getElementById('arrA'), r=document.getElementById('arrR'); if(!a||!r) return;
+  const ph=t%PULSE_T;
+  const fA = ph<1.6 ? 1+0.2*Math.sin(Math.PI*ph/0.8)**2 : 1;
+  const fR = ph>=1.8&&ph<3.4 ? 1+0.2*Math.sin(Math.PI*(ph-1.8)/0.8)**2 : 1;
+  const k=0.085, {cy}=FG;
+  const lenA=(FG.aTail-FG.aTip), lenR=(FG.rTip-FG.rTail);
+  a.setAttribute('points',arrowPts(FG.aTail, FG.aTail-lenA*(0.94+0.06*fA), cy, FG.A*k*fA));
+  r.setAttribute('points',arrowPts(FG.rTail, FG.rTail+lenR*(0.94+0.06*fR), cy, FG.R*k*fR));
+  a.style.opacity = fR>1 ? .55 : 1; r.style.opacity = fA>1 ? .55 : 1;
+  const bA=document.getElementById('barA'), bR=document.getElementById('barR');
+  if(bA) bA.style.height=(14*(1+(fA-1)*4)).toFixed(1)+'px'; if(bR) bR.style.height=(14*(1+(fR-1)*4)).toFixed(1)+'px';
+}
+(function loop(now){ if(!document.getElementById('lab').hidden) drawForces(now/1000); requestAnimationFrame(loop); })(performance.now());
+function renderLabSide(){
+  const e=BY[labSel], sh=shells(e), [A,R]=FORCE[labSel], M=135;
+  document.getElementById('labAtom').innerHTML=forceSVG(e,sh,A,R); drawForces(0);
+  const pA=A/(A+R)*100;
+  document.getElementById('fbars').innerHTML=
+    `<div class="flabels"><span><b style="color:var(--accent)">Attraction</b> to nucleus</span><span><b style="color:var(--push)">Repulsion</b> from inner electrons</span></div>
+     <div class="fsplit"><div id="barA" style="flex:0 0 calc(${pA.toFixed(1)}% - 1.5px)"></div><div id="barR" style="flex:1 1 0"></div></div>`;
+  const i=ORDER.indexOf(labSel);
+  document.getElementById('labWhy').innerHTML = i===0
+    ? 'Outer electron close to the nucleus. Little repulsion from inner electrons. Attraction wins easily → hard to lose.'
+    : `One more shell than ${BY[ORDER[i-1]].n.toLowerCase()} → outer electron further away, more repulsion from inner electrons → attraction wins by less → lost more easily → faster reaction.`;
+  const lower=e.n.toLowerCase();
+  document.getElementById('eq').innerHTML = `${lower} + water → ${lower} hydroxide + hydrogen<br>2${e.s}(s) + 2H₂O(l) → 2${e.s}OH(aq) + H₂(g)`;
+}
+function renderLabTable(){
+  const t=document.getElementById('labTable');
+  t.innerHTML=`<thead><tr><th>Metal</th><th>Melting point / °C</th><th>Density / g/cm³</th><th>Floats or sinks?</th><th>What you see</th></tr></thead><tbody>`+
+   ORDER.map(s=>{const m=METALS[s];const done=tested.has(s);return `<tr class="${s===labSel?'cur':''}"><td><b>${BY[s].n}</b></td><td class="num">${m.mp}</td><td class="num">${m.dens.toFixed(2)}</td><td>${done?(m.floats?'Floats':'Sinks'):'<span class="muted">test it</span>'}</td><td>${done?m.obs.split('.').slice(0,2).join('.')+'.':'<span class="muted">test it</span>'}</td></tr>`}).join('')+
+   `<tr><td><b>Francium</b></td><td class="num">?</td><td class="num">?</td><td class="muted">?</td><td class="muted">Predict it in the challenge</td></tr></tbody>`;
+}
+const CONCL=[
+ {q:'Going down Group I, the melting point…',opts:['increases','decreases','stays the same'],a:1},
+ {q:'Going down Group I, the reaction with water gets…',opts:['slower','more violent','no different'],a:1},
+ {q:'Going down Group I, the density generally…',opts:['increases (potassium is an exception)','decreases','stays the same'],a:0},
+ {q:'The solution left after the reaction is…',opts:['acidic','neutral','alkaline'],a:2},
+ {q:'Reactivity increases because the outer electron is…',opts:['closer to the nucleus','further from the nucleus','in a full shell'],a:1}
+];
+function renderConcl(){
+  document.getElementById('concl').innerHTML=CONCL.map((c,i)=>`<label for="c${i}"><span>${c.q}</span>
+    <select id="c${i}"><option value="">choose…</option>${c.opts.map((o,j)=>`<option value="${j}">${o}</option>`).join('')}</select><span id="cr${i}"></span></label>`).join('');
+}
+document.getElementById('checkConcl').onclick=()=>{
+  const out=document.getElementById('conclResult');
+  if(tested.size<3){out.innerHTML='<span class="no">Test at least three metals first ('+tested.size+' done).</span>';return;}
+  let ok=0;
+  CONCL.forEach((c,i)=>{const v=document.getElementById('c'+i).value;const r=document.getElementById('cr'+i);
+    if(v==='') r.innerHTML=''; else if(+v===c.a){ok++;r.innerHTML='<span class="ok">✓</span>';} else r.innerHTML='<span class="no">✗</span>';});
+  out.innerHTML = ok===CONCL.length? '<span class="ok">All correct — you have found the Group I trends.</span>' : `${ok} / ${CONCL.length} correct. Look back at your results table and try the ✗ ones again.`;
+};
+document.getElementById('dropBtn').onclick=startReaction;
+
+/* ---------------- QUIZ ---------------- */
+const G1=['Li','Na','K','Rb','Cs'], G2=['Be','Mg','Ca','Sr','Ba'], G7=['F','Cl','Br','I'];
+const cap=w=>w[0].toUpperCase()+w.slice(1);
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pickN=(a,n)=>shuffle(a).slice(0,n);
+const mini=s=>{const e=BY[s];const f={metal:'var(--t-metal)',trans:'var(--t-trans)',metalloid:'var(--t-metalloid)',nonmetal:'var(--t-nonmetal)',noble:'var(--t-noble)'}[e.c];return `<div class="mini" style="background:${f}"><span>${e.z}</span><b>${e.s}</b><span>${e.n}</span></div>`;};
+
+const GEN = {
+ pair(){
+  const grp=rnd(['1','1','2','7','7']); const list=grp==='1'?G1:grp==='2'?G2:G7;
+  const [a,b]=pickN(list,2); const ia=list.indexOf(a), ib=list.indexOf(b);
+  const metal=grp!=='7'; const correct = metal? (ia>ib?a:b) : (ia<ib?a:b);
+  const other = correct===a?b:a;
+  const why = metal
+   ? `${BY[correct].n} is further down Group ${grp==='1'?'I':'II'}. Its atom has more shells, so the outer electron${grp==='2'?'s are':' is'} further from the nucleus and pulled less strongly. ${grp==='2'?'They are':'It is'} lost more easily, so it reacts faster.`
+   : `${BY[correct].n} is higher up Group VII. Its atom is smaller, so an incoming electron gets closer to the nucleus and is pulled more strongly. It gains an electron more easily, so it is more reactive. (Halogens get <b>less</b> reactive going down.)`;
+  return {type:'Compare reactivity',text:`Which is more reactive: ${BY[a].n} or ${BY[b].n}?`,vis:mini(a)+mini(b),
+    opts:[BY[a].n,BY[b].n],answer:[BY[a].n,BY[b].n].indexOf(BY[correct].n),why};
+ },
+ metal(){
+  const metals=['Na','Mg','Al','K','Ca','Fe','Cu','Zn','Ag','Pb','Sn','Li','Ba','Sr'], non=['C','N','O','F','P','S','Cl','Br','I','Ne','Ar','Se'];
+  const isM=Math.random()<.5; const s=isM?rnd(metals):rnd(non); const e=BY[s];
+  const pos = ROMAN[e.g]?`Group ${ROMAN[e.g]}, Period ${e.p}`:`the transition block, Period ${e.p}`;
+  return {type:'Metal or non-metal?',text:`${e.n} is in ${pos}. Is it a metal or a non-metal?`,vis:mini(s),opts:['Metal','Non-metal'],answer:isM?0:1,
+   why: isM? `${e.n} is to the left of the staircase line, so it is a metal.${s==='Sn'||s==='Pb'?' Elements get more metallic going down a group — even in Group IV.':''}`
+            : `${e.n} is to the right of the staircase line, so it is a non-metal.${e.g===18?' It is a noble gas.':''}`};
+ },
+ config(){
+  const pool=E.filter(e=>isMain(e)&&e.z<=20&&e.z>2);
+  const e=rnd(pool); const sh=shells(e); const g=ROMAN[e.g], p=e.p;
+  const right=`Group ${g}, Period ${p}`;
+  const set=new Set([right]);
+  const romans=['I','II','III','IV','V','VI','VII','VIII (0)'];
+  const cands=[`Group ${romans[Math.min(7,p-1)]}, Period ${outerE(e)<=7?outerE(e):p}`,`Group ${g}, Period ${p+1}`,`Group ${romans[(romans.indexOf(g)+1)%8]}, Period ${p}`,`Group ${g}, Period ${Math.max(1,p-1)}`,`Group ${romans[(romans.indexOf(g)+7)%8]}, Period ${p}`];
+  for(const c of shuffle(cands)){ if(set.size>=4) break; set.add(c); }
+  const opts=shuffle([...set]);
+  return {type:'Read the electrons',text:`An atom has the electron arrangement <span class="mono">${sh.join(',')}</span>. Where is it in the Periodic Table?`,vis:'',
+   opts,answer:opts.indexOf(right),why:`${sh.length} shells → Period ${p}. ${outerE(e)} outer electron${outerE(e)>1?'s':''} → Group ${g}${e.g===18?' (a full outer shell means a noble gas)':''}. This element is ${e.n.toLowerCase()}.`};
+ },
+ ion(){
+  const s=rnd(['Li','Na','K','Mg','Ca','Al','O','S','F','Cl','Br']); const e=BY[s]; const o=outerE(e);
+  const charges=['1+','2+','3+','1−','2−']; const right = e.g<=13? o+'+' : (8-o)+'−';
+  return {type:'Ion charge',text:`What is the charge on an ion of ${e.n}?`,vis:mini(s),opts:charges,answer:charges.indexOf(right),
+   why: e.g<=13? `${e.n} is in Group ${ROMAN[e.g]}, so it has ${o} outer electron${o>1?'s':''}. As a metal it <b>loses</b> ${o==1?'it':'them'} to get a full shell, leaving a ${right} ion.`
+              : `${e.n} is in Group ${ROMAN[e.g]}, so it has ${o} outer electrons. As a non-metal it <b>gains</b> ${8-o} electron${8-o>1?'s':''} to fill the shell to 8, making a ${right} ion.`};
+ },
+ predict(){
+  return rnd([
+   {type:'Predict',text:'Francium is at the bottom of Group I. Caesium melts at 28 °C. The melting point of francium is most likely…',vis:mini('Cs')+mini('Fr'),opts:['higher than 28 °C','lower than 28 °C','exactly 28 °C'],answer:1,why:'Melting point decreases down Group I (Li 181 °C → Cs 28 °C), so francium should be lower still. Following a trend to the next element is how chemists make predictions.'},
+   {type:'Predict',text:'Astatine is below iodine in Group VII. At room temperature astatine is most likely…',vis:mini('I')+mini('At'),opts:['a pale yellow gas','an orange liquid','a dark (black) solid'],answer:2,why:'Down Group VII the halogens go gas → liquid → solid and get darker (Cl₂ yellow-green gas, Br₂ red-brown liquid, I₂ grey-black solid). Astatine continues the pattern.'},
+   {type:'Predict',text:'Rubidium is directly below potassium in Group I. How will it react with water compared with potassium?',vis:mini('K')+mini('Rb'),opts:['Less vigorously','More violently','It will not react'],answer:1,why:'Reactivity increases down Group I. Rubidium has one more shell, so its outer electron is lost even more easily than potassium’s.'},
+   {type:'Predict',text:'Strontium is below calcium in Group II. Compared with calcium, strontium is…',vis:mini('Ca')+mini('Sr'),opts:['more reactive','less reactive','equally reactive'],answer:0,why:'Group II follows the same trend as Group I: more shells → outer electrons further from the nucleus → lost more easily → more reactive.'},
+   {type:'Predict',text:'Sodium and magnesium are both in Period 3. Which reacts more vigorously with cold water?',vis:mini('Na')+mini('Mg'),opts:['Sodium','Magnesium'],answer:0,why:'Sodium only has to lose 1 electron; magnesium has to lose 2. Losing one electron is easier, so Group I metals are more reactive than Group II metals in the same period.'},
+   {type:'Predict',text:'Fluorine is above chlorine in Group VII. Compared with chlorine, fluorine is…',vis:mini('F')+mini('Cl'),opts:['more reactive','less reactive','unreactive'],answer:0,why:'Fluorine atoms are the smallest halogen atoms, so an incoming electron is pulled most strongly. Fluorine is the most reactive halogen.'}
+  ]);
+ },
+ displace(){
+  const [x,y]=pickN(['Cl','Br','I'],2); const nm={Cl:'chlorine',Br:'bromine',I:'iodine'}, salt={Cl:'chloride',Br:'bromide',I:'iodide'};
+  const yes=G7.indexOf(x)<G7.indexOf(y);
+  const colour = y==='I'?'brown (iodine forms)':'orange (bromine forms)';
+  return {type:'Displacement',text:`${nm[x][0].toUpperCase()+nm[x].slice(1)} water is added to potassium ${salt[y]} solution. Will a reaction happen?`,vis:mini(x)+mini(y),
+   opts:['Yes — the halogen is displaced','No reaction'],answer:yes?0:1,
+   why: yes? `${cap(nm[x])} is above ${nm[y]} in Group VII, so it is more reactive and pushes ${nm[y]} out of the compound. The solution turns ${colour}.<br><span class="mono">${x}₂ + 2K${y} → 2K${x} + ${y}₂</span>`
+            : `${cap(nm[x])} is below ${nm[y]} in Group VII, so it is less reactive. A less reactive halogen cannot displace a more reactive one, so nothing happens.`};
+ },
+ concept(){
+  return rnd([
+   {type:'Big idea',text:'Going across Period 3 from sodium to argon, the elements change from…',opts:['non-metals to metals','metals to non-metals','gases to solids'],answer:1,why:'Na, Mg and Al are metals, Si is a metalloid, P, S and Cl are non-metals and Ar is a noble gas.'},
+   {type:'Big idea',text:'Elements in the same group react in a similar way because they have the same…',opts:['number of shells','number of outer electrons','number of neutrons'],answer:1,why:'Reactions involve the outer electrons. Same number of outer electrons → similar reactions.'},
+   {type:'Big idea',text:'The period number of an element tells you its number of…',opts:['outer electrons','electron shells','protons'],answer:1,why:'Period 3 elements such as sodium (2,8,1) have 3 shells of electrons.'},
+   {type:'Big idea',text:'Why are the noble gases so unreactive?',opts:['They are gases','Their outer shell is full','They have no electrons'],answer:1,why:'A full outer shell is the most stable arrangement. Noble gas atoms have no need to lose or gain electrons.'},
+   {type:'Big idea',text:'Why is potassium more reactive than sodium?',opts:['Potassium has more outer electrons','Potassium’s outer electron is further from the nucleus, so it is lost more easily','Potassium has a smaller atom'],answer:1,why:'Potassium (2,8,8,1) has one more shell than sodium (2,8,1). The outer electron is further away and shielded by more inner shells, so the nucleus holds it less strongly.'},
+   {type:'Big idea',text:'Why is chlorine more reactive than bromine?',opts:['Chlorine is a gas','A chlorine atom is smaller, so it attracts an extra electron more strongly','Chlorine has more outer electrons'],answer:1,why:'Both have 7 outer electrons. In the smaller chlorine atom the incoming electron gets closer to the nucleus, so it is gained more easily.'},
+   {type:'Big idea',text:'Compared with Group I metals, transition metals are…',opts:['softer with lower melting points','harder, denser and have higher melting points','more reactive with water'],answer:1,why:'Transition metals like iron and copper are hard, strong, dense, have high melting points and react much more slowly. Many also form coloured compounds.'},
+   {type:'Big idea',text:'Atoms get bigger going down a group because…',opts:['more electron shells are added','the nucleus gets smaller','there are fewer protons'],answer:0,why:'Each new period adds one more shell of electrons, so the atom gets bigger.'},
+   {type:'Big idea',text:'Atoms get smaller going across a period because…',opts:['shells are lost','more protons pull the same number of shells in tighter','electrons are removed'],answer:1,why:'Across a period the number of shells stays the same but the number of protons goes up, so the pull on the electrons gets stronger.'}
+  ]);
+ },
+ order(){
+  const grp=rnd(['1','2','7']); const list=grp==='1'?G1.slice(0,4):grp==='2'?G2.slice(0,4):G7;
+  const three=pickN(list,3); const correct = [...three].sort((a,b)=> grp==='7'? list.indexOf(a)-list.indexOf(b) : list.indexOf(b)-list.indexOf(a));
+  return {type:'Put in order',order:true,items:shuffle(three),correct,text:`Tap these in order from <b>most</b> reactive to <b>least</b> reactive.`,vis:'',
+    why: grp==='7'? `Halogens get less reactive going down Group VII, so the order is ${correct.map(s=>BY[s].n).join(' → ')}.`
+                  : `Group ${grp==='1'?'I':'II'} metals get more reactive going down, so the order is ${correct.map(s=>BY[s].n).join(' → ')}.`};
+ }
+};
+const ROUND=['pair','pair','metal','config','ion','predict','predict','displace','concept','order'];
+let Q={qs:[],i:0,score:0,streak:0,best:0,res:[],picked:[]};
+try{Q.best=+localStorage.getItem('ptl-best')||0}catch(e){}
+function newRound(){
+  const types=shuffle(ROUND); const seen=new Set(); Q.qs=[];
+  for(const t of types){ let q, tries=0; do{q=GEN[t]();tries++;}while(seen.has(q.text)&&tries<10); seen.add(q.text); Q.qs.push(q); }
+  Q.i=0;Q.score=0;Q.streak=0;Q.res=[];renderQ();
+}
+function head(){
+  return `<div class="qhead"><div class="progress">${Q.qs.map((_,k)=>`<i class="${k<Q.res.length?(Q.res[k]?'r':'w'):k===Q.i?'c':''}"></i>`).join('')}</div>
+   <div class="stat">Score ${Q.score} · Streak ${Q.streak} · Best ${Q.best}/10</div></div>`;
+}
+function renderQ(){
+  const box=document.getElementById('quizBox');
+  if(Q.i>=Q.qs.length) return renderEnd();
+  const q=Q.qs[Q.i]; Q.picked=[];
+  let opts='';
+  if(q.order) opts=`<div class="opts">${q.items.map(s=>`<button class="opt" data-s="${s}">${BY[s].n}</button>`).join('')}</div>`;
+  else opts=`<div class="opts">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}</div>`;
+  box.innerHTML=head()+`<div class="qtype">Question ${Q.i+1} of ${Q.qs.length} · ${q.type}</div><div class="qtext">${q.text}</div>${q.vis?`<div class="qvis">${q.vis}</div>`:''}${opts}<div id="fb"></div>`;
+  if(q.order){
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(b.disabled) return; Q.picked.push(b.dataset.s); b.disabled=true; b.innerHTML=`<span class="ord">${Q.picked.length}</span>`+b.innerHTML;
+      if(Q.picked.length===q.items.length){ const ok=Q.picked.join()===q.correct.join(); answer(ok,q);
+        box.querySelectorAll('.opt').forEach(x=>x.classList.add(ok?'right':'wrong')); }
+    });
+  } else {
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const k=+b.dataset.k, ok=k===q.answer;
+      box.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(+x.dataset.k===q.answer) x.classList.add('right');});
+      if(!ok) b.classList.add('wrong');
+      answer(ok,q);
+    });
+  }
+}
+function answer(ok,q){
+  Q.res.push(ok); if(ok){Q.score++;Q.streak++;} else Q.streak=0;
+  q.ok=ok;
+  const fb=document.getElementById('fb');
+  fb.innerHTML=`<div class="feedback" style="border-color:${ok?'var(--good)':'var(--bad)'}"><h4 class="${ok?'ok':'no'}">${ok?(Q.streak>=3?'Correct — '+Q.streak+' in a row!':'Correct.'):'Not quite.'}</h4>${!ok&&q.order?`<p style="margin:0 0 6px">Correct order: ${q.correct.map(s=>BY[s].n).join(' → ')}</p>`:''}<div>${q.why}</div></div>
+   <div style="margin-top:12px"><button class="go" id="nextQ">${Q.i===Q.qs.length-1?'See my score':'Next question'}</button></div>`;
+  document.querySelector('.qhead').outerHTML=head();
+  const n=document.getElementById('nextQ'); n.focus(); n.onclick=()=>{Q.i++;renderQ();};
+}
+function renderEnd(){
+  if(Q.score>Q.best){Q.best=Q.score;try{localStorage.setItem('ptl-best',Q.best)}catch(e){}}
+  const missed=Q.qs.filter(q=>!q.ok);
+  const msg=Q.score>=9?'Excellent — you can read the trends like a chemist.':Q.score>=6?'Good work. Check the ones you missed below, then play again.':'Keep going. Go back to “Explore the table” and look at the patterns, then try again.';
+  document.getElementById('quizBox').innerHTML=head()+`<div class="endcard"><div class="big">${Q.score}/10</div><p style="font-size:1.1rem">${msg}</p>
+   <button class="go" id="again">Play a new round</button></div>
+   ${missed.length?`<div class="review"><h3 style="font-size:1.15rem">Review what you missed</h3><ul>${missed.map(q=>`<li><b>${q.text.replace(/<[^>]+>/g,'')}</b><br><span class="muted">${q.why}</span></li>`).join('')}</ul></div>`:''}`;
+  document.getElementById('again').onclick=newRound;
+}
+
+/* ---------------- METAL DISPLACEMENT ---------------- */
+const SERIES=['K','Na','Ca','Mg','Al','C','Zn','Fe','H','Cu','Ag','Au'];
+const DM=['Mg','Zn','Fe','Cu','Ag'];
+const DMET={
+ Mg:{name:'magnesium',strip:'#c9cdd3',coat:null,ionName:'magnesium',ion:'Mg²⁺',sol:null},
+ Zn:{name:'zinc',strip:'#a7b0ba',coat:'#8a9097',coatTxt:'A grey coating of zinc',ionName:'zinc',ion:'Zn²⁺',sol:null},
+ Fe:{name:'iron',strip:'#6e737a',coat:'#3b3b3e',coatTxt:'A dark grey coating of iron',ionName:'iron(II)',ion:'Fe²⁺',sol:'#c9e0a4'},
+ Cu:{name:'copper',strip:'#c4733f',coat:'#a5482a',coatTxt:'A reddish-brown coating of copper',ionName:'copper(II)',ion:'Cu²⁺',sol:'#3f86d4'},
+ Ag:{name:'silver',strip:'#dcdfe4',coat:'#b9bdc4',coatTxt:'Grey-silver crystals of silver',ionName:'silver',ion:'Ag⁺',sol:null}
+};
+const SALT={Mg:{f:'MgSO₄',n:'magnesium sulfate'},Zn:{f:'ZnSO₄',n:'zinc sulfate'},Fe:{f:'FeSO₄',n:'iron(II) sulfate'},Cu:{f:'CuSO₄',n:'copper(II) sulfate'},Ag:{f:'AgNO₃',n:'silver nitrate'}};
+const CLEAR='#d9ebf5';
+let dMetal='Mg', dSalt='Cu', dDone={}, dAnim=null;
+const rank=s=>SERIES.indexOf(s);
+const reacts=(m,s)=>rank(m)<rank(s);
+function solColour(s){return DMET[s].sol||CLEAR;}
+function mix(a,b,t){const pa=[1,3,5].map(i=>parseInt(a.slice(i,i+2),16)),pb=[1,3,5].map(i=>parseInt(b.slice(i,i+2),16));return '#'+pa.map((v,i)=>Math.round(v+(pb[i]-v)*t).toString(16).padStart(2,'0')).join('');}
+const SPECK=Array.from({length:46},()=>({x:Math.random(),y:Math.random(),r:1.4+Math.random()*2.2}));
+function beakerSVG(st){
+  // st: {drop 0..1, react 0..1}
+  const m=DMET[dMetal], ok=reacts(dMetal,dSalt), s=DMET[dSalt];
+  const t=st.react, solTop=105, bottom=226;
+  const c0=solColour(dSalt), c1=ok?solColour(dMetal):c0;
+  const sol=mix(c0,c1,t);
+  const colourless = sol.toLowerCase()===CLEAR;
+  const sy=-150+150*st.drop; // strip offset
+  const stripTop=18+sy, stripBot=200+sy;
+  const T=22+(ok?(rank(dSalt)-rank(dMetal))*2.2:0)*t;
+  const thH=(T-15)/30*150;
+  let coat='';
+  if(ok && t>0){
+    const y0=Math.max(solTop,stripTop), h=stripBot-y0;
+    if(h>0){
+      coat+=`<rect x="128" y="${y0}" width="26" height="${h}" fill="${s.coat}" opacity="${(0.85*t).toFixed(2)}"/>`;
+      SPECK.forEach(p=>{coat+=`<circle cx="${(124+p.x*34).toFixed(1)}" cy="${(y0+p.y*h).toFixed(1)}" r="${p.r}" fill="${s.coat}" opacity="${Math.min(1,t*1.6).toFixed(2)}"/>`;});
+    }
+  }
+  return `
+  <rect x="70" y="${solTop}" width="140" height="${bottom-solTop}" fill="${sol}" opacity="${colourless?.6:.9}"/>
+  <rect x="128" y="${stripTop}" width="26" height="${stripBot-stripTop}" rx="2" fill="${m.strip}" style="stroke:var(--ink)" stroke-opacity=".5"/>
+  ${coat}
+  <path d="M64 50 L70 58 L70 220 Q70 230 80 230 L200 230 Q210 230 210 220 L210 58 L216 50" fill="none" style="stroke:var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="140" y="245" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif" font-size="12" style="fill:var(--muted)">${SALT[dSalt].n} solution</text>
+  <rect x="246" y="40" width="12" height="170" rx="6" style="fill:var(--card);stroke:var(--ink)" stroke-width="1.5"/>
+  <rect x="249" y="${(205-thH).toFixed(1)}" width="6" height="${thH.toFixed(1)}" rx="3" fill="#d23a3a"/>
+  <circle cx="252" cy="216" r="10" fill="#d23a3a" style="stroke:var(--ink)" stroke-width="1.5"/>
+  <text x="252" y="30" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" style="fill:var(--ink)">${T.toFixed(1)} °C</text>`;
+}
+function dDraw(st){document.getElementById('beaker').innerHTML=beakerSVG(st);}
+function dBtns(){
+  const mk=(id,list,cur,lab)=>{const b=document.getElementById(id);
+    b.innerHTML=list.map(s=>`<button class="mbtn" aria-pressed="${s===cur}" data-s="${s}" ${id==='dSalts'&&s===dMetal?'disabled':''}><b>${lab(s)}</b><span>${id==='dMetals'?DMET[s].name:SALT[s].n}</span></button>`).join('');
+    b.querySelectorAll('.mbtn').forEach(x=>x.onclick=()=>{ if(dAnim) return; if(id==='dMetals'){dMetal=x.dataset.s; if(dSalt===dMetal) dSalt=DM.find(q=>q!==dMetal);} else dSalt=x.dataset.s; dReset(); });};
+  mk('dMetals',DM,dMetal,s=>s); mk('dSalts',DM,dSalt,s=>SALT[s].f);
+}
+function dSeries(){
+  document.getElementById('series').innerHTML='<span class="top">▲ most reactive</span>'+SERIES.map(s=>{
+    const ref=s==='C'||s==='H', nm={C:'carbon',H:'hydrogen'}[s]||BY[s].n.toLowerCase();
+    const cls=s===dMetal?'m':s===dSalt?'s':ref?'ref':'';
+    const tag=s===dMetal?'<span class="tag" style="color:var(--accent)">metal strip</span>':s===dSalt?'<span class="tag" style="color:var(--push)">in solution</span>':'';
+    return `<div class="${cls}"><b>${s}</b><span>${nm}</span>${tag}</div>`;}).join('')+'<span class="bot">▼ least reactive</span>';
+  const a=DMET[dMetal].name, b=DMET[dSalt].name;
+  document.getElementById('dWhy').innerHTML = reacts(dMetal,dSalt)
+    ? `${cap(a)} is <b>above</b> ${b} → ${a} loses electrons more easily → ${a} displaces ${b}.`
+    : `${cap(a)} is <b>below</b> ${b} → ${a} cannot displace ${b} → no reaction.`;
+}
+function dEquation(){
+  const M=dMetal, S=dSalt, m=DMET[M], s=DMET[S];
+  if(!reacts(M,S)) return `${m.name} + ${SALT[S].n} → no reaction`;
+  if(S==='Ag'){
+    const prod=`${m.ionName} nitrate`, f=`${M}(NO₃)₂`;
+    return `${m.name} + silver nitrate → ${prod} + silver<br>${M}(s) + 2AgNO₃(aq) → ${f}(aq) + 2Ag(s)<br>ionic: ${M}(s) + 2Ag⁺(aq) → ${m.ion}(aq) + 2Ag(s)`;
+  }
+  return `${m.name} + ${SALT[S].n} → ${m.ionName} sulfate + ${s.name}<br>${M}(s) + ${SALT[S].f}(aq) → ${M}SO₄(aq) + ${S}(s)<br>ionic: ${M}(s) + ${s.ion}(aq) → ${m.ion}(aq) + ${S}(s)`;
+}
+function dObservation(){
+  const M=dMetal,S=dSalt,m=DMET[M],s=DMET[S];
+  if(!reacts(M,S)) return `<b>Observation:</b> no visible change. The temperature stays the same.`;
+  const c0=s.sol, c1=m.sol; let sol;
+  if(c0==='#3f86d4'&&!c1) sol='The blue solution fades to colourless.';
+  else if(c0==='#3f86d4'&&c1) sol='The blue solution turns pale green.';
+  else if(c0==='#c9e0a4'&&!c1) sol='The pale green solution fades to colourless.';
+  else if(!c0&&c1==='#3f86d4') sol='The colourless solution turns blue.';
+  else if(!c0&&c1==='#c9e0a4') sol='The colourless solution turns pale green.';
+  else sol='The solution stays colourless.';
+  return `<b>Observation:</b> ${s.coatTxt} forms on the ${m.name} strip. ${sol} The temperature rises.`;
+}
+function dReset(){
+  if(dAnim){cancelAnimationFrame(dAnim);dAnim=null;}
+  dBtns(); dSeries(); dDraw({drop:0,react:0});
+  document.getElementById('dEq').innerHTML='';
+  document.getElementById('dObs').textContent=`Ready: ${DMET[dMetal].name} strip + ${SALT[dSalt].n}. Press “Add the metal”.`;
+  document.getElementById('dAdd').disabled=false;
+}
+document.getElementById('dAdd').onclick=()=>{
+  const ok=reacts(dMetal,dSalt), t0=performance.now();
+  document.getElementById('dAdd').disabled=true;
+  document.getElementById('dObs').textContent='…watch the strip and the solution…';
+  const step=now=>{
+    const t=(now-t0)/1000, drop=Math.min(1,t/0.7), react=ok?Math.max(0,Math.min(1,(t-0.8)/3.2)):0;
+    dDraw({drop,react});
+    if(t<(ok?4.2:2)){dAnim=requestAnimationFrame(step);return;}
+    dAnim=null;
+    dDone[dMetal+dSalt]=ok;
+    document.getElementById('dObs').innerHTML=dObservation();
+    document.getElementById('dEq').innerHTML=dEquation()+(ok?`<br>${dMetal} loses electrons (oxidised) · ${DMET[dSalt].ion} gains electrons (reduced)`:'');
+    dGrid();
+  };
+  dAnim=requestAnimationFrame(step);
+};
+function dGrid(){
+  const t=document.getElementById('dGrid');
+  t.innerHTML=`<thead><tr><th>Metal ↓ / Solution →</th>${DM.map(s=>`<th>${SALT[s].f}</th>`).join('')}<th>Reactions</th></tr></thead><tbody>`+
+   DM.map(m=>{let n=0;const cells=DM.map(s=>{if(m===s) return '<td class="muted">—</td>';const k=m+s;if(!(k in dDone)) return '<td></td>';if(dDone[k]){n++;return '<td class="y">✓</td>';}return '<td class="n">✗</td>';}).join('');
+     const tested=DM.filter(s=>s!==m&&(m+s) in dDone).length;
+     return `<tr><td><b>${DMET[m].name}</b></td>${cells}<td class="num">${tested?n+' / '+tested:''}</td></tr>`;}).join('')+'</tbody>';
+}
+function dRank(){
+  document.getElementById('dRank').innerHTML=[1,2,3,4,5].map(i=>`<label for="dr${i}"><span style="min-width:9em">${i===1?'1 (most reactive)':i===5?'5 (least reactive)':i}</span>
+   <select id="dr${i}"><option value="">choose…</option>${DM.map(s=>`<option value="${s}">${DMET[s].name}</option>`).join('')}</select><span id="drr${i}"></span></label>`).join('');
+}
+document.getElementById('dCheckRank').onclick=()=>{
+  const out=document.getElementById('dRankResult');
+  if(Object.keys(dDone).length<10){out.innerHTML=`<span class="no">Test at least 10 pairs first (${Object.keys(dDone).length} done).</span>`;return;}
+  let ok=0;
+  DM.forEach((s,i)=>{const v=document.getElementById('dr'+(i+1)).value,r=document.getElementById('drr'+(i+1));
+    if(!v){r.innerHTML='';return;} if(v===s){ok++;r.innerHTML='<span class="ok">✓</span>';} else r.innerHTML='<span class="no">✗</span>';});
+  out.innerHTML= ok===5?'<span class="ok">Correct: magnesium → zinc → iron → copper → silver.</span>':`${ok} / 5 correct. Count the ✓ for each metal in your grid.`;
+};
+const DPRED=[
+ {q:'Aluminium is added to copper(II) sulfate solution. Will copper be displaced?',o:['Yes','No'],a:0,w:'Aluminium is above copper in the series, so it displaces copper. A reddish-brown coating forms and the blue colour fades.'},
+ {q:'Copper is added to iron(II) sulfate solution. What happens?',o:['Iron is displaced','No reaction'],a:1,w:'Copper is below iron, so it cannot displace iron.'},
+ {q:'Gold jewellery is dipped in silver nitrate solution. What happens?',o:['Silver coats the gold','No reaction'],a:1,w:'Gold is the least reactive metal in the series. It cannot displace silver.'},
+ {q:'Which metal could you use to get silver out of silver nitrate solution?',o:['Gold','Copper','Silver'],a:1,w:'Copper is above silver, so it displaces it. Gold is below silver, so it cannot.'},
+ {q:'Zinc is added to a solution of magnesium sulfate. What do you see?',o:['A grey coating forms','No visible change'],a:1,w:'Zinc is below magnesium, so no reaction happens.'}
+];
+function dPred(){
+  const box=document.getElementById('dPred');
+  box.innerHTML=DPRED.map((p,i)=>`<div class="q"><b>${i+1}. ${p.q}</b><div class="row">${p.o.map((o,j)=>`<button data-q="${i}" data-j="${j}">${o}</button>`).join('')}</div><div class="fb" id="dpf${i}"></div></div>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const p=DPRED[b.dataset.q], ok=+b.dataset.j===p.a;
+    b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('right','wrong'));
+    b.classList.add(ok?'right':'wrong');
+    document.getElementById('dpf'+b.dataset.q).innerHTML=`<span class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</span> ${p.w}`;
+  });
+}
+
+/* ---------------- HALOGEN DISPLACEMENT (textbook pp. 141–145) ---------------- */
+const HX=['Cl','Br','I'];
+const HCOL={clear:'#d9ebf5',orange:'#f1a043',paleorange:'#f6d3a0',brown:'#8b4a1d',violet:'#8a3cae'};
+const HAL={
+ Cl:{name:'chlorine',f:'Cl₂',sol:'chlorine water',ion:'Cl⁻',salt:'sodium chloride',kf:'NaCl',own:'clear',ownW:'colourless',org:'pale green'},
+ Br:{name:'bromine',f:'Br₂',sol:'bromine water',ion:'Br⁻',salt:'sodium bromide',kf:'NaBr',own:'orange',ownW:'orange',org:'orange'},
+ I:{name:'iodine',f:'I₂',sol:'iodine water',ion:'I⁻',salt:'sodium iodide',kf:'NaI',own:'brown',ownW:'brown',org:'violet'}
+};
+// Sample data, textbook p. 144: colour after shaking, then upper (organic) and lower (water) layers
+const HDATA={
+ ClI:{mix:'brown',up:'violet',low:'brown'}, BrI:{mix:'brown',up:'violet',low:'brown'},
+ ClBr:{mix:'orange',up:'orange',low:'paleorange'}, IBr:{mix:'brown',up:'violet',low:'brown'},
+ BrCl:{mix:'orange',up:'orange',low:'paleorange'}, ICl:{mix:'brown',up:'violet',low:'brown'}
+};
+const WORD={clear:'colourless',orange:'orange',paleorange:'pale orange',brown:'brown',violet:'violet'};
+let hx='Cl', hy='Br', hAnim=null, hDone={};
+const hReacts=(x,y)=>HX.indexOf(x)<HX.indexOf(y);
+const hD=()=>HDATA[hx+hy];
+function tubeSVG(st){
+  const d=hD(), X=HAL[hx];
+  const base=200, lvl0=150, lvl1=125, lvl2=95;
+  const top = st.shake>0 ? lvl2 : (lvl0-(lvl0-lvl1)*st.drop);
+  let body='';
+  if(st.shake>0){
+    const mixed=HCOL[d.mix], sep=st.sep;
+    const orgC=mix(mixed,HCOL[d.up],sep), lowC=mix(mixed,HCOL[d.low],sep);
+    const split=lvl2+(lvl1-lvl2)*sep;
+    body=`<rect x="100" y="${split}" width="100" height="160" fill="${lowC}" opacity=".9"/>
+          <rect x="100" y="${top}" width="100" height="${split-top}" fill="${orgC}" opacity=".92"/>`;
+    if(sep>0.6) body+=`<line x1="118" x2="182" y1="${split}" y2="${split}" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/>`;
+  } else {
+    const c=mix(HCOL.clear,HCOL[d.mix],st.col);
+    body=`<rect x="100" y="${top}" width="100" height="160" fill="${c}" opacity="${st.col===0?.6:.9}"/>`;
+  }
+  const ang = st.shake>0&&st.shake<1 ? Math.sin(st.shake*Math.PI*10)*12 : 0;
+  let drops='';
+  if(st.drop>0&&st.drop<1){ for(let i=0;i<3;i++){const y=20+((st.drop*3+i/3)%1)*(top-20);drops+=`<circle cx="150" cy="${y.toFixed(1)}" r="4" fill="${HCOL[X.own]}" style="stroke:var(--ink)" stroke-opacity=".4"/>`;} }
+  const labs = st.sep>0.7 ? `<text x="190" y="${(lvl2+lvl1)/2+4}" font-family="Atkinson Hyperlegible, sans-serif" font-size="11" style="fill:var(--muted)">← organic layer</text>
+     <text x="190" y="${(lvl1+base)/2+10}" font-family="Atkinson Hyperlegible, sans-serif" font-size="11" style="fill:var(--muted)">← water layer</text>`:'';
+  return `<defs><clipPath id="tubeClip"><path d="M118 40 L118 200 A32 32 0 0 0 182 200 L182 40 Z"/></clipPath></defs>
+   <g transform="rotate(${ang.toFixed(1)} 150 140)">
+   <g clip-path="url(#tubeClip)">${body}</g>
+   <path d="M112 34 L118 40 L118 200 A32 32 0 0 0 182 200 L182 40 L188 34" fill="none" style="stroke:var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+   ${labs}</g>${drops}
+   <text x="150" y="252" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif" font-size="12" style="fill:var(--muted)">${X.sol} + ${HAL[hy].salt} solution</text>`;
+}
+function hDraw(st){document.getElementById('tube').innerHTML=tubeSVG(st);}
+function hBtns(){
+  const mk=(id,cur,lab,sub)=>{const b=document.getElementById(id);
+    b.innerHTML=HX.map(s=>`<button class="mbtn" aria-pressed="${s===cur}" data-s="${s}" ${id==='hY'&&s===hx?'disabled':''}><b>${lab(s)}</b><span>${sub(s)}</span></button>`).join('');
+    b.querySelectorAll('.mbtn').forEach(x=>x.onclick=()=>{ if(hAnim) return; if(id==='hX'){hx=x.dataset.s; if(hy===hx) hy=HX.find(q=>q!==hx);} else hy=x.dataset.s; hReset(); });};
+  mk('hX',hx,s=>HAL[s].f,s=>HAL[s].sol); mk('hY',hy,s=>HAL[s].kf,s=>HAL[s].salt);
+}
+// Group VII facts: Tables 9.3, 9.4 and p. 141
+const HFACT={F:{c:'2,7',d:''},Cl:{c:'2,8,7',d:'pale yellow-green gas'},Br:{c:'2,8,18,7',d:'red-brown liquid'},I:{c:'',d:'grey-black solid'},At:{c:'',d:'radioactive'}};
+function hColumn(){
+  document.getElementById('hCol').innerHTML='<span class="top">▲ more reactive</span>'+['F','Cl','Br','I','At'].map(s=>{
+    const cls=s===hx?'m':s===hy?'s':'';
+    const tag=s===hx?'<span class="tag" style="color:var(--accent)">added</span>':s===hy?'<span class="tag" style="color:var(--push)">in salt</span>':'';
+    const f=HFACT[s];
+    return `<div class="${cls}"><b>${s}</b><span>${BY[s].n.toLowerCase()}${f.c?` <span class="mono muted" style="font-size:.78rem">${f.c}</span>`:''}${f.d?`<br><span class="muted" style="font-size:.8rem">${f.d}</span>`:''}</span>${tag}</div>`;}).join('')+'<span class="top">▼ less reactive · colours get darker</span>';
+  const a=HAL[hx].name, b=HAL[hy].name;
+  document.getElementById('hWhy').innerHTML = hReacts(hx,hy)
+    ? `${cap(a)} is more reactive than ${b}. The incoming electron is gained more easily by the smaller ${a} atom. In the larger ${b} atom, more occupied shells lessen the attraction of the nucleus and repel the incoming electron.`
+    : `${cap(a)} is less reactive than ${b}, so ${a} cannot displace ${b}.`;
+}
+function hEquation(){
+  const X=HAL[hx], Y=HAL[hy];
+  if(!hReacts(hx,hy)) return `${X.name} + ${Y.salt} → no reaction`;
+  return `${X.name} + ${Y.salt} → sodium ${X.name.replace(/ine$/,'ide')} + ${Y.name}<br>${X.f}(aq) + 2Na${hy}(aq) → 2Na${hx}(aq) + ${Y.f}(aq)<br>ionic: 2${Y.ion}(aq) + ${X.f}(aq) → 2${X.ion}(aq) + ${Y.f}(aq)<br>${Y.ion} has been oxidised (lost electrons) · ${X.f} has been reduced (gained electrons)`;
+}
+function hReset(){
+  if(hAnim){cancelAnimationFrame(hAnim);hAnim=null;}
+  hBtns(); hColumn(); hDraw({drop:0,col:0,shake:0,sep:0});
+  document.getElementById('hEq').innerHTML='';
+  document.getElementById('hObs').innerHTML=`Ready: ${HAL[hy].salt} solution. ${cap(HAL[hx].sol)} is <b>${HAL[hx].ownW}</b>. Press “Add halogen solution”.`;
+  document.getElementById('hAdd').disabled=false; document.getElementById('hShake').disabled=true;
+}
+function hRun(dur,frame,done){const t0=performance.now();const step=now=>{const t=Math.min(1,(now-t0)/dur);frame(t);if(t<1){hAnim=requestAnimationFrame(step);}else{hAnim=null;done();}};hAnim=requestAnimationFrame(step);}
+document.getElementById('hAdd').onclick=()=>{
+  document.getElementById('hAdd').disabled=true;
+  document.getElementById('hObs').textContent='…shaking with the sodium halide solution…';
+  hRun(2600,t=>hDraw({drop:Math.min(1,t/0.45),col:Math.max(0,(t-0.35)/0.65),shake:0,sep:0}),()=>{
+    document.getElementById('hObs').innerHTML=`<b>Colour after shaking:</b> ${WORD[hD().mix]}. Now add the organic solvent — the halogens give more vivid colours in it.`;
+    document.getElementById('hShake').disabled=false;
+  });
+};
+document.getElementById('hShake').onclick=()=>{
+  document.getElementById('hShake').disabled=true;
+  document.getElementById('hObs').textContent='…shaking, then letting two layers form…';
+  hRun(2600,t=>hDraw({drop:1,col:1,shake:Math.min(1,t/0.45),sep:Math.max(0,(t-0.5)/0.5)}),()=>{
+    const ok=hReacts(hx,hy), d=hD(), present=d.up==='violet'?'iodine':'bromine';
+    hDone[hx+hy]={ok,c:HCOL[d.up],w:WORD[d.up]};
+    document.getElementById('hObs').innerHTML=`<b>Upper (organic) layer:</b> ${WORD[d.up]}. <b>Lower (water) layer:</b> ${WORD[d.low]}.<br>${cap(WORD[d.up])} in the organic solvent shows ${present}. ${ok?`${cap(HAL[hx].name)} has displaced ${HAL[hy].name}.`:`No reaction — the ${present} is from the ${HAL[hx].sol} that was added.`}`;
+    document.getElementById('hEq').innerHTML=hEquation();
+    hGrid();
+  });
+};
+function hGrid(){
+  document.getElementById('hGrid').innerHTML=`<thead><tr><th>Added ↓ / Salt →</th>${HX.map(s=>`<th>${HAL[s].kf}</th>`).join('')}<th>Reactions</th></tr></thead><tbody>`+
+   HX.map(x=>{let n=0,t=0;const cells=HX.map(y=>{if(x===y) return '<td class="muted">—</td>';const r=hDone[x+y];if(!r) return '<td></td>';t++;if(r.ok)n++;
+     return `<td class="${r.ok?'y':'n'}">${r.ok?'✓':'✗'}<span class="sw" style="background:${r.c}"></span> <span class="muted" style="font-weight:400;font-size:.8rem">${r.w}</span></td>`;}).join('');
+     return `<tr><td><b>${HAL[x].sol}</b></td>${cells}<td class="num">${t?n+' / '+t:''}</td></tr>`;}).join('')+'</tbody>';
+}
+function hRankUI(){
+  document.getElementById('hRank').innerHTML=[1,2,3].map(i=>`<label for="hr${i}"><span style="min-width:9em">${i===1?'1 (most reactive)':i===3?'3 (least reactive)':i}</span>
+   <select id="hr${i}"><option value="">choose…</option>${HX.map(s=>`<option value="${s}">${HAL[s].name}</option>`).join('')}</select><span id="hrr${i}"></span></label>`).join('');
+}
+document.getElementById('hCheckRank').onclick=()=>{
+  const out=document.getElementById('hRankResult');
+  if(Object.keys(hDone).length<6){out.innerHTML=`<span class="no">Test all 6 pairs first (${Object.keys(hDone).length} done).</span>`;return;}
+  let ok=0;
+  HX.forEach((s,i)=>{const v=document.getElementById('hr'+(i+1)).value,r=document.getElementById('hrr'+(i+1));
+    if(!v){r.innerHTML='';return;} if(v===s){ok++;r.innerHTML='<span class="ok">✓</span>';} else r.innerHTML='<span class="no">✗</span>';});
+  out.innerHTML= ok===3?'<span class="ok">Correct: chlorine → bromine → iodine (decreasing reactivity).</span>':`${ok} / 3 correct. Count the ✓ for each halogen in your grid.`;
+};
+const HPRED=[
+ {q:'Bromine is added to potassium iodide solution. Will a reaction take place?',o:['Yes','No'],a:0,w:'Yes. Bromine is more reactive than iodine, so it displaces iodine: Br₂ + 2KI → 2KBr + I₂.'},
+ {q:'Bromine is added to potassium chloride solution. Will a reaction take place?',o:['Yes','No'],a:1,w:'No reaction. Bromine is less reactive than chlorine, so it cannot displace it.'},
+ {q:'Predict how fluorine compares with chlorine in reactivity.',o:['More reactive','Less reactive'],a:0,w:'Fluorine is above chlorine. Reactivity decreases going down the group, so fluorine is more reactive.'},
+ {q:'Predict the physical state of astatine at room temperature.',o:['Gas','Liquid','Solid'],a:2,w:'Going down the group the halogens change from gas (Cl₂) to liquid (Br₂) to solid (I₂). Astatine is below iodine, so it should be a solid.'},
+ {q:'Predict how astatine would react with sodium bromide solution.',o:['Bromine is displaced','No reaction'],a:1,w:'Astatine is below bromine, so it is less reactive and cannot displace bromine.'},
+ {q:'Why is chlorine more reactive than bromine?',o:['The incoming electron is gained more easily by the smaller chlorine atom','Chlorine has more outer electrons','Chlorine is a gas'],a:0,w:'In the smaller chlorine atom there is a stronger attraction between the incoming electron and the nucleus. In the larger bromine atom, more occupied shells lessen the attraction and repel the incoming electron.'}
+];
+function hPredUI(){
+  const box=document.getElementById('hPred');
+  box.innerHTML=HPRED.map((p,i)=>`<div class="q"><b>${i+1}. ${p.q}</b><div class="row">${p.o.map((o,j)=>`<button data-q="${i}" data-j="${j}">${o}</button>`).join('')}</div><div class="fb" id="hpf${i}"></div></div>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const p=HPRED[b.dataset.q], ok=+b.dataset.j===p.a;
+    b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('right','wrong'));
+    b.classList.add(ok?'right':'wrong');
+    document.getElementById('hpf'+b.dataset.q).innerHTML=`<span class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</span> ${p.w}`;
+  });
+}
+
+/* ---------------- INIT ---------------- */
+buildModes(); renderTable(); renderPattern(); renderDetail();
+renderMetalBtns(); renderLabSide(); renderLabTable(); renderConcl();
+dReset(); dGrid(); dRank(); dPred();
+hReset(); hGrid(); hRankUI(); hPredUI();
+newRound();
+let startTab='explore'; try{startTab=localStorage.getItem('ptl-tab')||'explore'}catch(e){}
+if(location.hash && ['explore','lab','disp','quiz','hal'].includes(location.hash.slice(1))) startTab=location.hash.slice(1);
+showTab(startTab);
+</script>
+
+</body>
+</html>
